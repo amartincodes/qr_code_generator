@@ -13,6 +13,7 @@
     "start": "node dist/index.js"
   },
   "devDependencies": {
+    "@types/encoding-japanese": "^2.2.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.47.0",
@@ -25,5 +26,8 @@
     "ts-jest": "^29.4.5",
     "typescript": "^5.9.3",
     "vite": "^7.2.2"
+  },
+  "dependencies": {
+    "encoding-japanese": "^2.2.0"
   }
 }
