@@ -258,4 +258,94 @@ describe("QRCodeGenerator", () => {
     //   expect(encoded).toEqual(expectedUint8Array);
     // });
   });
+
+  describe("implementErrorCorrection", () => {
+    it("should implement error correction on encoded data for L", () => {
+      const data = "1234567890";
+      const options = {
+        encodingMode: EncodingMode.NUMERIC,
+        errorCorrectionLevel: "L",
+        version: 4
+      } as QRCodeOptions;
+      const encodedData = qrCodeGenerator.encodeData(data, options);
+      const finalData = qrCodeGenerator.implementErrorCorrection(
+        encodedData,
+        options.errorCorrectionLevel
+      );
+
+      // final data length should equal error corrected codewords + data codewords
+      const blockSizeInfo =
+        qrCodeGenerator.version4ErrorCorrection[options.errorCorrectionLevel];
+      const totalCodewords =
+        blockSizeInfo.ecCodewordsPerBlock * blockSizeInfo.blocks +
+        blockSizeInfo.dataCodewordsPerBlock * blockSizeInfo.blocks;
+      expect(finalData.length).toBe(totalCodewords);
+    });
+    it("should implement error correction on encoded data for M", () => {
+      const data = "1234567890";
+      const options = {
+        encodingMode: EncodingMode.NUMERIC,
+        errorCorrectionLevel: "M",
+        version: 4
+      } as QRCodeOptions;
+      const encodedData = qrCodeGenerator.encodeData(data, options);
+      const finalData = qrCodeGenerator.implementErrorCorrection(
+        encodedData,
+        options.errorCorrectionLevel
+      );
+
+      // final data length should equal error corrected codewords + data codewords
+      // for version 4 it should be 100 bytes
+      const blockSizeInfo =
+        qrCodeGenerator.version4ErrorCorrection[options.errorCorrectionLevel];
+      const totalCodewords =
+        blockSizeInfo.ecCodewordsPerBlock * blockSizeInfo.blocks +
+        blockSizeInfo.dataCodewordsPerBlock * blockSizeInfo.blocks;
+      expect(finalData.length).toBe(totalCodewords);
+    });
+    it("should implement error correction on encoded data for Q", () => {
+      const data = "1234567890";
+      const options = {
+        encodingMode: EncodingMode.NUMERIC,
+        errorCorrectionLevel: "Q",
+        version: 4
+      } as QRCodeOptions;
+      const encodedData = qrCodeGenerator.encodeData(data, options);
+      const finalData = qrCodeGenerator.implementErrorCorrection(
+        encodedData,
+        options.errorCorrectionLevel
+      );
+
+      // final data length should equal error corrected codewords + data codewords
+      // for version 4 it should be 100 bytes
+      const blockSizeInfo =
+        qrCodeGenerator.version4ErrorCorrection[options.errorCorrectionLevel];
+      const totalCodewords =
+        blockSizeInfo.ecCodewordsPerBlock * blockSizeInfo.blocks +
+        blockSizeInfo.dataCodewordsPerBlock * blockSizeInfo.blocks;
+      expect(finalData.length).toBe(totalCodewords);
+    });
+    it("should implement error correction on encoded data for H", () => {
+      const data = "1234567890";
+      const options = {
+        encodingMode: EncodingMode.NUMERIC,
+        errorCorrectionLevel: "H",
+        version: 4
+      } as QRCodeOptions;
+      const encodedData = qrCodeGenerator.encodeData(data, options);
+      const finalData = qrCodeGenerator.implementErrorCorrection(
+        encodedData,
+        options.errorCorrectionLevel
+      );
+
+      // final data length should equal error corrected codewords + data codewords
+      // for version 4 it should be 100 bytes
+      const blockSizeInfo =
+        qrCodeGenerator.version4ErrorCorrection[options.errorCorrectionLevel];
+      const totalCodewords =
+        blockSizeInfo.ecCodewordsPerBlock * blockSizeInfo.blocks +
+        blockSizeInfo.dataCodewordsPerBlock * blockSizeInfo.blocks;
+      expect(finalData.length).toBe(totalCodewords);
+    });
+  });
 });

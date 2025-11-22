@@ -44,7 +44,7 @@ const VERSION = 4; // we're just using a fixed version for simplicity (33 x 33 m
 
 class QRCodeGenerator {
   constructor() {
-    this.generate = this.generate.bind(this);
+    // this.generate = this.generate.bind(this);
   }
 
   validateInput(data: string): boolean {
@@ -227,6 +227,129 @@ class QRCodeGenerator {
     }
 
     return byteArray;
+  }
+
+  reedSolomonEncode(data: Uint8Array, ecCodewords: number): Uint8Array {
+    // QR uses GF(256) with primitive polynomial 0x11d
+    const gfExp = new Uint8Array(512);
+    const gfLog = new Uint8Array(256);
+
+    // Generate exponent and log tables
+    let x = 1;
+    for (let i = 0; i < 255; i++) {
+      gfExp[i] = x;
+      gfLog[x] = i;
+      x <<= 1;
+      if (x & 0x100) x ^= 0x11d;
+    }
+    for (let i = 255; i < 512; i++) {
+      gfExp[i] = gfExp[i - 255] || 0;
+    }
+
+    // Generator polynomial
+    const gen = new Uint8Array(ecCodewords + 1);
+    gen[0] = 1;
+    for (let i = 0; i < ecCodewords; i++) {
+      for (let j = i; j >= 0; j--) {
+        // ignore object might be undefined
+        // @ts-ignore
+        gen[j + 1] ^= gfExp[(gfLog[gen[j]] + i) % 255];
+      }
+    }
+
+    // Initialize buffer
+    const buffer = new Uint8Array(data.length + ecCodewords);
+    buffer.set(data);
+
+    // Reed-Solomon division
+    for (let i = 0; i < data.length; i++) {
+      const coef = buffer[i];
+      if (coef !== 0) {
+        for (let j = 0; j < gen.length; j++) {
+          // @ts-ignore
+          buffer[i + j] ^= gfExp[(gfLog[coef] + gfLog[gen[j]]) % 255];
+        }
+      }
+    }
+
+    // Error correction codewords are the last ecCodewords bytes
+    return buffer.slice(-ecCodewords);
+  }
+
+  version4ErrorCorrection = {
+    L: { blocks: 1, ecCodewordsPerBlock: 20, dataCodewordsPerBlock: 80 },
+    M: { blocks: 2, ecCodewordsPerBlock: 18, dataCodewordsPerBlock: 32 },
+    Q: { blocks: 2, ecCodewordsPerBlock: 26, dataCodewordsPerBlock: 24 },
+    H: { blocks: 4, ecCodewordsPerBlock: 16, dataCodewordsPerBlock: 9 }
+  };
+
+  implementErrorCorrection(
+    data: Uint8Array,
+    level: ErrorCorrectionLevel
+  ): Uint8Array {
+    // For version 4, level L
+    const dataCodewords =
+      this.version4ErrorCorrection[level].dataCodewordsPerBlock *
+      this.version4ErrorCorrection[level].blocks;
+    const ecCodewords =
+      this.version4ErrorCorrection[level].ecCodewordsPerBlock *
+      this.version4ErrorCorrection[level].blocks;
+    const blocks = this.version4ErrorCorrection[level].blocks;
+
+    // Ensure data is correct length
+    if (data.length !== dataCodewords) {
+      throw new Error(`Data length must be ${dataCodewords} codewords`);
+    }
+
+    // Split data into blocks
+    const blockSize = dataCodewords / blocks;
+    const dataBlocks: Uint8Array[] = [];
+    for (let i = 0; i < blocks; i++) {
+      dataBlocks.push(data.slice(i * blockSize, (i + 1) * blockSize));
+    }
+
+    console.log("Data Blocks:", dataBlocks);
+
+    // Generate error correction codewords
+    const ecBlocks: Uint8Array[] = [];
+    for (let i = 0; i < blocks; i++) {
+      if (!dataBlocks[i]) {
+        throw new Error(`Data block ${i} is undefined`);
+      }
+      ecBlocks.push(
+        this.reedSolomonEncode(
+          dataBlocks[i] as Uint8Array,
+          this.version4ErrorCorrection[level].ecCodewordsPerBlock
+        )
+      );
+    }
+    console.log("Error Correction Codewords:", ecBlocks);
+
+    // Interleave data correction codewords
+    const result = new Uint8Array(dataCodewords + ecCodewords);
+    let pos = 0;
+    for (let i = 0; i < blockSize; i++) {
+      for (let j = 0; j < blocks; j++) {
+        // @ts-ignore
+        result[pos++] = dataBlocks[j][i];
+      }
+    }
+
+    // interleave error correction codewords
+    for (
+      let i = 0;
+      i < this.version4ErrorCorrection[level].ecCodewordsPerBlock;
+      i++
+    ) {
+      for (let j = 0; j < blocks; j++) {
+        // @ts-ignore
+        result[pos++] = ecBlocks[j][i];
+      }
+    }
+
+    console.log("Final Data + EC Codewords:", result);
+
+    return result;
   }
 
   generateQrCode(data: string, encoding: EncodingMode): string {
