@@ -348,4 +348,108 @@ describe("QRCodeGenerator", () => {
       expect(finalData.length).toBe(totalCodewords);
     });
   });
+
+  describe("createQRCodeMatrix", () => {
+    it("should create a QR code matrix for numeric data", () => {
+      const data = "1234567890";
+      const options = {
+        encodingMode: EncodingMode.NUMERIC,
+        errorCorrectionLevel: "L",
+        version: 4
+      } as QRCodeOptions;
+      const encodedData = qrCodeGenerator.encodeData(data, options);
+      const finalData = qrCodeGenerator.implementErrorCorrection(
+        encodedData,
+        options.errorCorrectionLevel
+      );
+      const matrix = qrCodeGenerator.createQRCodeMatrix(finalData, options);
+
+      // For version 4, the matrix should be 33x33
+      expect(matrix.length).toBe(33);
+      expect(matrix[0].length).toBe(33);
+    });
+  });
+
+  describe("applyDataMask", () => {
+    it("should apply data mask to the QR code matrix", () => {
+      const data = "1234567890";
+      const options = {
+        encodingMode: EncodingMode.NUMERIC,
+        errorCorrectionLevel: "L",
+        version: 4
+      } as QRCodeOptions;
+      const encodedData = qrCodeGenerator.encodeData(data, options);
+      const finalData = qrCodeGenerator.implementErrorCorrection(
+        encodedData,
+        options.errorCorrectionLevel
+      );
+      const matrix = qrCodeGenerator.createQRCodeMatrix(finalData, options);
+      const maskedMatrix = qrCodeGenerator.applyDataMask(matrix, 0);
+
+      // The masked matrix should have the same dimensions as the original matrix
+      expect(maskedMatrix.length).toBe(matrix.length);
+      expect(maskedMatrix[0].length).toBe(matrix[0].length);
+    });
+  });
+
+  describe("createFormatInformationEncoding", () => {
+    it("should create format information encoding for L level and mask pattern 4", () => {
+      const formatInfo = qrCodeGenerator.createFormatInformationEncoding(
+        ErrorCorrectionLevel.L,
+        4
+      );
+      expect(formatInfo).toBe("110011000101111");
+      expect(formatInfo.length).toBe(15);
+    });
+  });
+  describe("placeFormatInformation", () => {
+    it("should place format information into the QR code matrix", () => {
+      const matrix = Array.from({ length: 33 }, () =>
+        Array.from({ length: 33 }, () => 0)
+      );
+      const formatData = "110011000101111";
+      const updatedMatrix = qrCodeGenerator.placeFormatInformation(
+        matrix,
+        formatData
+      );
+
+      // top left format info
+      expect(updatedMatrix[0][8]).toBe(parseInt(formatData[14]));
+      expect(updatedMatrix[1][8]).toBe(parseInt(formatData[13]));
+      expect(updatedMatrix[2][8]).toBe(parseInt(formatData[12]));
+      expect(updatedMatrix[3][8]).toBe(parseInt(formatData[11]));
+      expect(updatedMatrix[4][8]).toBe(parseInt(formatData[10]));
+      expect(updatedMatrix[5][8]).toBe(parseInt(formatData[9]));
+      expect(updatedMatrix[7][8]).toBe(parseInt(formatData[8]));
+      expect(updatedMatrix[8][8]).toBe(parseInt(formatData[7]));
+      expect(updatedMatrix[8][7]).toBe(parseInt(formatData[6]));
+      expect(updatedMatrix[8][5]).toBe(parseInt(formatData[5]));
+      expect(updatedMatrix[8][4]).toBe(parseInt(formatData[4]));
+      expect(updatedMatrix[8][3]).toBe(parseInt(formatData[3]));
+      expect(updatedMatrix[8][2]).toBe(parseInt(formatData[2]));
+      expect(updatedMatrix[8][1]).toBe(parseInt(formatData[1]));
+      expect(updatedMatrix[8][0]).toBe(parseInt(formatData[0]));
+
+      // bottom left format info
+      expect(updatedMatrix[32][8]).toBe(parseInt(formatData[0]));
+      expect(updatedMatrix[31][8]).toBe(parseInt(formatData[1]));
+      expect(updatedMatrix[30][8]).toBe(parseInt(formatData[2]));
+      expect(updatedMatrix[29][8]).toBe(parseInt(formatData[3]));
+      expect(updatedMatrix[28][8]).toBe(parseInt(formatData[4]));
+      expect(updatedMatrix[27][8]).toBe(parseInt(formatData[5]));
+      expect(updatedMatrix[26][8]).toBe(parseInt(formatData[6]));
+
+      // top right format info
+      expect(updatedMatrix[8][25]).toBe(parseInt(formatData[7]));
+      expect(updatedMatrix[8][26]).toBe(parseInt(formatData[8]));
+      expect(updatedMatrix[8][27]).toBe(parseInt(formatData[9]));
+      expect(updatedMatrix[8][28]).toBe(parseInt(formatData[10]));
+      expect(updatedMatrix[8][29]).toBe(parseInt(formatData[11]));
+      expect(updatedMatrix[8][30]).toBe(parseInt(formatData[12]));
+      expect(updatedMatrix[8][31]).toBe(parseInt(formatData[13]));
+      expect(updatedMatrix[8][32]).toBe(parseInt(formatData[14]));
+    });
+  });
+
+  describe("createVersionInformationEncoding", () => {});
 });
