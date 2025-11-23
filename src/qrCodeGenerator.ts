@@ -1,3 +1,6 @@
+import * as fs from "fs";
+import * as path from "path";
+import { PNG } from "pngjs";
 import Encoding from "encoding-japanese";
 
 enum EncodingMode {
@@ -295,7 +298,7 @@ class QRCodeGenerator {
     data: Uint8Array,
     level: ErrorCorrectionLevel
   ): Uint8Array {
-    // For version 4, level L
+    // For version 4
     const dataCodewords =
       this.version4ErrorCorrection[level].dataCodewordsPerBlock *
       this.version4ErrorCorrection[level].blocks;
@@ -387,6 +390,38 @@ class QRCodeGenerator {
     }
   }
 
+  placeDataBits(
+    matrix: number[][],
+    dataBits: number[],
+    isFunctionModule: boolean[][]
+  ) {
+    const size = matrix.length;
+    let row = size - 1;
+    let col = size - 1;
+    let direction = -1; // up
+    let bitIndex = 0;
+
+    while (col > 0) {
+      if (col === 6) col--; // skip timing pattern column
+
+      for (let i = 0; i < size; i++) {
+        for (let j = 0; j < 2; j++) {
+          const c = col - j;
+          if (!isFunctionModule[row]![c] && bitIndex < dataBits.length) {
+            matrix[row][c] = dataBits[bitIndex++];
+          }
+        }
+        row += direction;
+        if (row < 0 || row >= size) {
+          row -= direction;
+          direction *= -1;
+          col -= 2;
+          break;
+        }
+      }
+    }
+  }
+
   createQRCodeMatrix(
     dataWithEc: Uint8Array,
     options: QRCodeOptions
@@ -417,6 +452,8 @@ class QRCodeGenerator {
     const alignCol = 26;
     for (let i = -2; i <= 2; i++) {
       for (let j = -2; j <= 2; j++) {
+        const r = alignRow + i;
+        const c = alignCol + j;
         if (
           i === -2 ||
           i === 2 ||
@@ -424,7 +461,9 @@ class QRCodeGenerator {
           j === 2 ||
           (i === 0 && j === 0)
         ) {
-          matrix[alignRow + i]![alignCol + j] = 1;
+          matrix[r]![c] = 1; // black border and center
+        } else {
+          matrix[r]![c] = 0; // white center
         }
       }
     }
@@ -445,65 +484,74 @@ class QRCodeGenerator {
 
     // Add dark module
     // For version 4, at (8, size-8)
-    matrix[8]![size - 8] = 1;
+    matrix[size - 8]![8] = 1;
 
     // reserve format information areas
-    for (let i = 0; i < 9; i++) {
-      if (i !== 6) {
-        matrix[8]![i] = 0; // Top-left horizontal
-        matrix[i]![8] = 0; // Top-left vertical
-      }
-    }
-    for (let i = size - 8; i < size; i++) {
-      matrix[8]![i] = 0; // Top-right
-      matrix[i]![8] = 0; // Bottom-left
-    }
+    // for (let i = 0; i < 9; i++) {
+    //   if (i !== 6) {
+    //     matrix[8]![i] = 0; // Top-left horizontal
+    //     matrix[i]![8] = 0; // Top-left vertical
+    //   }
+    // }
+    // for (let i = size - 8; i < size; i++) {
+    //   matrix[8]![i] = 0; // Top-right
+    //   matrix[i]![8] = 0; // Bottom-left
+    // }
     // console.log("Final QR Code Matrix with Reserved Areas:");
     // console.table(matrix);
 
     // TODO: the following can go into a separate function
+
     // place data bits into the matrix
-    let row = size - 1;
-    let col = size - 1;
-    let direction = -1; // moving upwards initially
-    let byteIndex = 0;
-    let bitIndex = 7;
+    this.placeDataBits(
+      matrix,
+      Array.from(dataWithEc).flatMap((byte) =>
+        Array.from({ length: 8 }, (_, i) => (byte >> (7 - i)) & 1)
+      ),
+      this.createIsFunctionModuleMatrix(size)
+    );
 
-    for (let i = 0; i < dataWithEc.length * 8; i++) {
-      // Skip reserved areas
-      while (matrix[row]![col] !== 0 && matrix[row]![col] !== 1) {
-        col -= 1;
-        if (col < 0) {
-          col = size - 1;
-          row += direction;
-          if (row < 0 || row >= size) {
-            direction *= -1;
-            row += direction;
-          }
-        }
-      }
-
-      // @ts-ignore
-      const bit = (dataWithEc[byteIndex] >> bitIndex) & 1;
-      matrix[row]![col] = bit;
-
-      bitIndex -= 1;
-      if (bitIndex < 0) {
-        byteIndex += 1;
-        bitIndex = 7;
-      }
-
-      // Move to next position
-      col -= 1;
-      if (col < 0) {
-        col = size - 1;
-        row += direction;
-        if (row < 0 || row >= size) {
-          direction *= -1;
-          row += direction;
-        }
-      }
-    }
+    // let row = size - 1;
+    // let col = size - 1;
+    // let direction = -1; // moving upwards initially
+    // let byteIndex = 0;
+    // let bitIndex = 7;
+    //
+    // for (let i = 0; i < dataWithEc.length * 8; i++) {
+    //   // Skip reserved areas
+    //   while (matrix[row]![col] !== 0 && matrix[row]![col] !== 1) {
+    //     col -= 1;
+    //     if (col < 0) {
+    //       col = size - 1;
+    //       row += direction;
+    //       if (row < 0 || row >= size) {
+    //         direction *= -1;
+    //         row += direction;
+    //       }
+    //     }
+    //   }
+    //
+    //   // @ts-ignore
+    //   const bit = (dataWithEc[byteIndex] >> bitIndex) & 1;
+    //   matrix[row]![col] = bit;
+    //
+    //   bitIndex -= 1;
+    //   if (bitIndex < 0) {
+    //     byteIndex += 1;
+    //     bitIndex = 7;
+    //   }
+    //
+    //   // Move to next position
+    //   col -= 1;
+    //   if (col < 0) {
+    //     col = size - 1;
+    //     row += direction;
+    //     if (row < 0 || row >= size) {
+    //       direction *= -1;
+    //       row += direction;
+    //     }
+    //   }
+    // }
 
     console.log("Final QR Code Matrix with Data Bits:");
     console.table(matrix);
@@ -594,12 +642,109 @@ class QRCodeGenerator {
     return penalty;
   }
 
-  applyDataMask(matrix: number[][], maskPattern: number): number[][] {
+  createIsFunctionModuleMatrix(size: number): boolean[][] {
+    const matrix = Array.from({ length: size }, () => Array(size).fill(false));
+
+    // Finder patterns (top-left, top-right, bottom-left)
+    const finderCoords: [number, number][] = [
+      [0, 0],
+      [0, size - 7],
+      [size - 7, 0]
+    ];
+    for (const coord of finderCoords) {
+      const [row, col] = coord;
+      if (typeof row !== "number" || typeof col !== "number") continue;
+
+      for (let r = row; r < row + 7; r++) {
+        for (let c = col; c < col + 7; c++) {
+          matrix[r]![c] = true;
+        }
+      }
+    }
+    // Separators (1-module wide white border around finder patterns)
+    for (const [row, col] of finderCoords) {
+      // Horizontal separators (above and below)
+      for (let c = col - 1; c <= col + 7; c++) {
+        if (row - 1 >= 0 && c >= 0 && c < size) {
+          matrix[row - 1]![c] = 0;
+          matrix[row - 1]![c] = true;
+        }
+        if (row + 7 < size && c >= 0 && c < size) {
+          matrix[row + 7]![c] = 0;
+          matrix[row + 7]![c] = true;
+        }
+      }
+      // Vertical separators (left and right)
+      for (let r = row; r < row + 7; r++) {
+        if (col - 1 >= 0 && r >= 0 && r < size) {
+          matrix[r]![col - 1] = 0;
+          matrix[r]![col - 1] = true;
+        }
+        if (col + 7 < size && r >= 0 && r < size) {
+          matrix[r]![col + 7] = 0;
+          matrix[r]![col + 7] = true;
+        }
+      }
+    }
+
+    // Timing patterns (horizontal and vertical lines at row 6 and column 6)
+    for (let i = 0; i < size; i++) {
+      matrix[6]![i] = true;
+      matrix[i]![6] = true;
+    }
+
+    // Alignment patterns (for versions >= 2)
+    // Add logic for alignment patterns if needed
+    // For version 4, alignment pattern at (26,26)
+    // TODO: Generalize for other versions
+    const alignRow = 26;
+    const alignCol = 26;
+    for (let i = -2; i <= 2; i++) {
+      for (let j = -2; j <= 2; j++) {
+        if (
+          i === -2 ||
+          i === 2 ||
+          j === -2 ||
+          j === 2 ||
+          (i === 0 && j === 0)
+        ) {
+          matrix[alignRow + i]![alignCol + j] = true;
+        } else {
+          matrix[alignRow + i]![alignCol + j] = true;
+        }
+      }
+    }
+
+    // Format information areas
+    for (let i = 0; i < 8; i++) {
+      matrix[8]![i] = true;
+      matrix[i]![8] = true;
+      matrix[8]![size - 8 + i] = true;
+      matrix[size - 8 + i]![8] = true;
+    }
+
+    // dark module
+    matrix[size - 8]![8] = true;
+
+    // Version information areas (for versions >= 7)
+    // Add logic for version info if needed
+    // TODO: add this bit when adding support for versions 7 and above
+
+    return matrix;
+  }
+
+  applyDataMask(
+    matrix: number[][],
+    maskPattern: number,
+    isFunctionModule: boolean[][]
+  ): number[][] {
     const size = matrix.length;
     const maskedMatrix = matrix.map((row) => row.slice());
 
     for (let r = 0; r < size; r++) {
       for (let c = 0; c < size; c++) {
+        if (isFunctionModule[r]![c]) continue; // Skip function/reserved modules
+
         let mask = false;
         switch (maskPattern) {
           case 0:
@@ -628,13 +773,11 @@ class QRCodeGenerator {
             break;
         }
         if (mask) {
+          // @ts-ignore
           maskedMatrix[r]![c] ^= 1;
         }
       }
     }
-
-    console.log(`Masked QR Code Matrix with Mask Pattern ${maskPattern}:`);
-    console.table(maskedMatrix);
     return maskedMatrix;
   }
 
@@ -715,23 +858,73 @@ class QRCodeGenerator {
     return updatedMatrix;
   }
 
+  // TODO: Implement version information encoding for versions 7 and above
   createVersionInformationEncoding(version: number): string {
     // create the 18-bit version information string for versions 7 and above
     // Placeholder for version information encoding
     return "000000000000000000"; // This should be calculated properly
   }
 
-  generateQrCode(data: string, encoding: EncodingMode): string {
+  addQuietZone(matrix: number[][], quietZoneSize: number): number[][] {
+    const size = matrix.length;
+    const newSize = size + quietZoneSize * 2;
+    const newMatrix: number[][] = Array.from({ length: newSize }, () =>
+      Array(newSize).fill(0)
+    );
+
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        newMatrix[r + quietZoneSize]![c + quietZoneSize] = matrix[r]![c];
+      }
+    }
+
+    return newMatrix;
+  }
+
+  generateQrCode(
+    data: string,
+    encoding: EncodingMode,
+    errorCorrectionLevel: ErrorCorrectionLevel
+  ): number[][] {
     const encodedData = this.encodeData(data, {
       encodingMode: encoding,
-      errorCorrectionLevel: ErrorCorrectionLevel.M,
+      errorCorrectionLevel,
       version: VERSION
     });
     console.log("Encoded Data Bytes:", encodedData);
-    return `QR Code generated with ${encoding} encoding for data: ${data}`;
+    const dataWithEc = this.implementErrorCorrection(
+      encodedData,
+      errorCorrectionLevel
+    );
+    console.log("Data with Error Correction Bytes:", dataWithEc);
+    let qrMatrix = this.createQRCodeMatrix(dataWithEc, {
+      encodingMode: encoding,
+      errorCorrectionLevel,
+      version: VERSION
+    });
+
+    const isFunctionModule = this.createIsFunctionModuleMatrix(qrMatrix.length);
+    const bestMask = this.selectBestMaskPattern(qrMatrix, (m, mask) =>
+      this.applyDataMask(m, mask, isFunctionModule)
+    );
+    console.log("Best Mask Pattern Selected:", bestMask);
+
+    qrMatrix = this.applyDataMask(qrMatrix, bestMask, isFunctionModule);
+    const formatInfo = this.createFormatInformationEncoding(
+      errorCorrectionLevel,
+      bestMask
+    );
+    qrMatrix = this.placeFormatInformation(qrMatrix, formatInfo);
+
+    qrMatrix = this.addQuietZone(qrMatrix, 4);
+
+    console.log("Final QR Code Matrix with Quiet Zone:");
+    console.table(qrMatrix);
+
+    return qrMatrix;
   }
 
-  generate(data: string): string {
+  generate(data: string): number[][] {
     if (!this.validateInput(data)) {
       throw new Error("Invalid input data for QR code generation.");
     }
@@ -739,7 +932,48 @@ class QRCodeGenerator {
     const encoding = this.detectBestEncoding(data);
     console.log(`Detected encoding mode: ${encoding}`);
 
-    return this.generateQrCode(data, encoding);
+    const qrMatrix = this.generateQrCode(
+      data,
+      encoding,
+      ErrorCorrectionLevel.L
+    );
+    console.log("Generated QR Code Matrix:");
+    console.table(qrMatrix);
+
+    return qrMatrix;
+  }
+
+  saveQRCodeAsImage(matrix: number[][], filePath?: string): void {
+    const size = matrix.length;
+    const scale = 10; // pixels per module
+    const png = new PNG({
+      width: size * scale,
+      height: size * scale,
+      colorType: 0
+    });
+
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        const color = matrix[y]![x] ? 0 : 255; // 0: black, 255: white
+        for (let dy = 0; dy < scale; dy++) {
+          for (let dx = 0; dx < scale; dx++) {
+            const idx = ((y * scale + dy) * png.width + (x * scale + dx)) << 2;
+            png.data[idx] = color; // R
+            png.data[idx + 1] = color; // G
+            png.data[idx + 2] = color; // B
+            png.data[idx + 3] = 255; // A
+          }
+        }
+      }
+    }
+
+    const filePathFinal = filePath || `./qr_codes/qrcode_${Date.now()}.png`;
+    const dir = path.dirname(filePathFinal);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    png.pack().pipe(fs.createWriteStream(filePathFinal));
+    console.log(`Saving QR code image to ${filePathFinal}...`);
   }
 }
 
