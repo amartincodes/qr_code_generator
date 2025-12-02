@@ -445,7 +445,7 @@ describe("QRCodeGenerator", () => {
 
   describe("saveQRCodeAsImage", () => {
     it("should save the QR code matrix as an image file", () => {
-      const data = "1234567890";
+      const data = "google.com";
       const qrCodeMatrix = qrCodeGenerator.generate(data);
       const filePath = "./tests/qr_codes/test_qr_code.png";
 
