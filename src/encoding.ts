@@ -116,27 +116,24 @@ function encodeDataToBinary(data: string, encodingMode: EncodingMode): string {
         to: "SJIS",
         type: "array"
       });
-
       for (let i = 0; i < sjisBytes.length; i += 2) {
         const byte1 = sjisBytes[i] || 0;
         const byte2 = sjisBytes[i + 1] || 0;
         const code = (byte1 << 8) | byte2;
-
-        let adjustedCode;
+        let subtracted;
         if (code >= 0x8140 && code <= 0x9ffc) {
-          adjustedCode = code - 0x8140;
+          subtracted = code - 0x8140;
         } else if (code >= 0xe040 && code <= 0xebbf) {
-          adjustedCode = code - 0xc140;
+          subtracted = code - 0xc140;
         } else {
           throw new Error(
             `Invalid Kanji character at bytes ${byte1.toString(16)}, ${byte2.toString(16)}`
           );
         }
-
-        const upperByte = Math.floor(adjustedCode / 0xc0);
-        const lowerByte = adjustedCode % 0xc0;
-        const value = upperByte * 0xc0 + lowerByte;
-
+        // Compress: high byte * 0xC0 + low byte
+        const highByte = (subtracted >> 8) & 0xff;
+        const lowByte = subtracted & 0xff;
+        const value = highByte * 0xc0 + lowByte;
         encodedData += value.toString(2).padStart(13, "0");
       }
       break;
@@ -194,39 +191,41 @@ function reedSolomonEncode(data: Uint8Array, ecCodewords: number): Uint8Array {
     if (x & 0x100) x ^= 0x11d;
   }
   for (let i = 255; i < 512; i++) {
-    gfExp[i] = gfExp[i - 255];
-  }
-
-  // Generator polynomial
-  const gen = new Uint8Array(ecCodewords + 1);
-  gen[0] = 1;
-  for (let i = 0; i < ecCodewords; i++) {
-    for (let j = i + 1; j > 0; j--) {
-      gen[j] = gen[j] ^ gfMul(gen[j - 1], gfExp[i]);
-    }
+    gfExp[i] = gfExp[i - 255]!;
   }
 
   function gfMul(a: number, b: number): number {
     if (a === 0 || b === 0) return 0;
-    return gfExp[(gfLog[a] + gfLog[b]) % 255];
+    return gfExp[(gfLog[a]! + gfLog[b]!) % 255]!;
   }
 
-  // Initialize buffer
-  const buffer = new Uint8Array(data.length + ecCodewords);
-  buffer.set(data);
-
-  // Reed-Solomon division
-  for (let i = 0; i < data.length; i++) {
-    const coef = buffer[i];
-    if (coef !== 0) {
-      for (let j = 0; j < gen.length; j++) {
-        buffer[i + j] ^= gfMul(coef, gen[j]);
-      }
+  // Generator polynomial coefficients
+  // gen[i] is coefficient of x^(ecCodewords - i)
+  const gen = new Uint8Array(ecCodewords + 1);
+  gen[0] = 1;
+  for (let i = 0; i < ecCodewords; i++) {
+    for (let j = i + 1; j > 0; j--) {
+      gen[j] = gen[j]! ^ gfMul(gen[j - 1]!, gfExp[i]!);
     }
   }
 
-  // Error correction codewords are the last ecCodewords bytes
-  return buffer.slice(-ecCodewords);
+  // Polynomial division - use separate remainder array
+  const remainder = new Uint8Array(ecCodewords);
+
+  for (let i = 0; i < data.length; i++) {
+    const coef = data[i]! ^ remainder[0]!;
+    // Shift remainder left by 1
+    for (let j = 0; j < ecCodewords - 1; j++) {
+      remainder[j] = remainder[j + 1]!;
+    }
+    remainder[ecCodewords - 1] = 0;
+    // XOR with generator polynomial multiplied by coef
+    for (let j = 0; j < ecCodewords; j++) {
+      remainder[j] ^= gfMul(coef, gen[j + 1]!);
+    }
+  }
+
+  return remainder;
 }
 
 export {

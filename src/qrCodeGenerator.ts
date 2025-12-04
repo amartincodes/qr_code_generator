@@ -19,7 +19,8 @@ import {
   placeDarkModule,
   placeFormatInformation,
   createFormatInformationEncoding,
-  placeQuietZone
+  placeQuietZone,
+  placeDataBits
 } from "./patterns";
 
 // TODO: Add support for different versions (1-40)
@@ -34,40 +35,7 @@ class QRCodeGenerator {
     return data.length > 0 && data.length <= 2953; // Max length for QR Code version 40-L
   }
 
-  placeDataBits(
-    matrix: number[][],
-    dataBits: number[],
-    isFunctionModule: boolean[][]
-  ) {
-    const size = matrix.length;
-    let col = size - 1;
-    let direction = -1; // up
-    let bitIndex = 0;
-
-    while (col > 0) {
-      if (col === 6) col--; // skip timing pattern column
-
-      let row = direction === -1 ? size - 1 : 0; // Reset row for each column pair
-
-      for (let i = 0; i < size; i++) {
-        for (let j = 0; j < 2; j++) {
-          const c = col - j;
-          if (!isFunctionModule[row]![c] && bitIndex < dataBits.length) {
-            matrix[row]![c] = dataBits[bitIndex++];
-          }
-        }
-        row += direction;
-        if (row < 0 || row >= size) {
-          direction *= -1;
-          break;
-        }
-      }
-      direction *= -1;
-      col -= 2;
-    }
-  }
-
-  createQRCodeMatrix(
+  createInitialMatrix(
     dataWithEc: Uint8Array,
     options: QRCodeOptions
   ): number[][] {
@@ -111,7 +79,7 @@ class QRCodeGenerator {
     console.table(matrix);
 
     // place data + ec bits
-    this.placeDataBits(
+    placeDataBits(
       matrix,
       Array.from(dataWithEc).flatMap((byte) =>
         Array.from({ length: 8 }, (_, i) => (byte >> (7 - i)) & 1)
@@ -126,97 +94,74 @@ class QRCodeGenerator {
   }
 
   createIsFunctionModuleMatrix(size: number): boolean[][] {
-    const matrix = Array.from({ length: size }, () => Array(size).fill(false));
+    const matrix: boolean[][] = Array.from({ length: size }, () =>
+      Array(size).fill(false)
+    );
 
-    // Finder patterns (top-left, top-right, bottom-left)
-    const finderCoords: [number, number][] = [
-      [0, 0],
-      [0, size - 7],
-      [size - 7, 0]
-    ];
-    for (const coord of finderCoords) {
-      const [row, col] = coord;
-      if (typeof row !== "number" || typeof col !== "number") continue;
-
-      for (let r = row; r < row + 7; r++) {
-        for (let c = col; c < col + 7; c++) {
-          matrix[r]![c] = true;
-        }
+    // Finder patterns + separators (8x8 area for each)
+    // Top-left: rows 0-7, cols 0-7
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        matrix[r]![c] = true;
       }
     }
-    // Separators (1-module wide white border around finder patterns)
-    for (const [row, col] of finderCoords) {
-      // Horizontal separators (above and below)
-      for (let c = col - 1; c <= col + 7; c++) {
-        if (row - 1 >= 0 && c >= 0 && c < size) {
-          matrix[row - 1]![c] = 0;
-          matrix[row - 1]![c] = true;
-        }
-        if (row + 7 < size && c >= 0 && c < size) {
-          matrix[row + 7]![c] = 0;
-          matrix[row + 7]![c] = true;
-        }
+    // Top-right: rows 0-7, cols (size-8) to (size-1)
+    for (let r = 0; r < 8; r++) {
+      for (let c = size - 8; c < size; c++) {
+        matrix[r]![c] = true;
       }
-      // Vertical separators (left and right)
-      for (let r = row; r < row + 7; r++) {
-        if (col - 1 >= 0 && r >= 0 && r < size) {
-          matrix[r]![col - 1] = 0;
-          matrix[r]![col - 1] = true;
-        }
-        if (col + 7 < size && r >= 0 && r < size) {
-          matrix[r]![col + 7] = 0;
-          matrix[r]![col + 7] = true;
-        }
+    }
+    // Bottom-left: rows (size-8) to (size-1), cols 0-7
+    for (let r = size - 8; r < size; r++) {
+      for (let c = 0; c < 8; c++) {
+        matrix[r]![c] = true;
       }
     }
 
-    // Timing patterns (horizontal and vertical lines at row 6 and column 6)
+    // Timing patterns (row 6 and column 6)
     for (let i = 0; i < size; i++) {
       matrix[6]![i] = true;
       matrix[i]![6] = true;
     }
 
-    // Alignment patterns (for versions >= 2)
-    // Add logic for alignment patterns if needed
-    // For version 4, alignment pattern at (26,26)
-    // TODO: Generalize for other versions
+    // Alignment pattern at (26, 26) for version 4
+    // TODO: Generalize for other versions using alignment pattern table
     const alignRow = 26;
     const alignCol = 26;
-    for (let i = -2; i <= 2; i++) {
-      for (let j = -2; j <= 2; j++) {
-        if (
-          i === -2 ||
-          i === 2 ||
-          j === -2 ||
-          j === 2 ||
-          (i === 0 && j === 0)
-        ) {
-          matrix[alignRow + i]![alignCol + j] = true;
-        } else {
-          matrix[alignRow + i]![alignCol + j] = true;
-        }
+    for (let r = alignRow - 2; r <= alignRow + 2; r++) {
+      for (let c = alignCol - 2; c <= alignCol + 2; c++) {
+        matrix[r]![c] = true;
       }
     }
 
     // Format information areas
-    for (let i = 0; i < 8; i++) {
-      matrix[8]![i] = true;
-      matrix[i]![8] = true;
-      matrix[8]![size - 8 + i] = true;
-      matrix[size - 8 + i]![8] = true;
+    // Top-left horizontal (row 8, cols 0-8)
+    for (let c = 0; c <= 8; c++) {
+      matrix[8]![c] = true;
+    }
+    // Top-left vertical (rows 0-8, col 8)
+    for (let r = 0; r <= 8; r++) {
+      matrix[r]![8] = true;
+    }
+    // Top-right horizontal (row 8, cols size-8 to size-1)
+    for (let c = size - 8; c < size; c++) {
+      matrix[8]![c] = true;
+    }
+    // Bottom-left vertical (rows size-7 to size-1, col 8)
+    for (let r = size - 7; r < size; r++) {
+      matrix[r]![8] = true;
     }
 
-    // dark module
+    // Dark module (always at (4*version + 9, 8) = (25, 8) for version 4)
     matrix[size - 8]![8] = true;
 
-    // Version information areas (for versions >= 7)
-    // Add logic for version info if needed
-    // TODO: add this bit when adding support for versions 7 and above
+    // Version information areas (for versions >= 7 only)
+    // TODO: Add when supporting versions 7+
 
     return matrix;
   }
 
-  generateQrCode(
+  createQrCodeMatrix(
     data: string,
     encoding: EncodingMode,
     errorCorrectionLevel: ErrorCorrectionLevel
@@ -232,19 +177,17 @@ class QRCodeGenerator {
       errorCorrectionLevel
     );
     console.log("Data with Error Correction Bytes:", dataWithEc);
-    let qrMatrix = this.createQRCodeMatrix(dataWithEc, {
+    let qrMatrix = this.createInitialMatrix(dataWithEc, {
       encodingMode: encoding,
       errorCorrectionLevel,
       version: VERSION
     });
 
     const isFunctionModule = this.createIsFunctionModuleMatrix(qrMatrix.length);
-    const bestMask = selectBestMaskPattern(qrMatrix, (m, mask) =>
-      applyDataMask(m, mask, isFunctionModule)
-    );
+    const bestMask = selectBestMaskPattern(qrMatrix, isFunctionModule);
     console.log("Best Mask Pattern Selected:", bestMask);
-
     qrMatrix = applyDataMask(qrMatrix, bestMask, isFunctionModule);
+
     const formatInfo = createFormatInformationEncoding(
       errorCorrectionLevel,
       bestMask
@@ -267,7 +210,7 @@ class QRCodeGenerator {
     const encoding = detectBestEncoding(data);
     console.log(`Detected encoding mode: ${encoding}`);
 
-    const qrMatrix = this.generateQrCode(
+    const qrMatrix = this.createQrCodeMatrix(
       data,
       encoding,
       ErrorCorrectionLevel.L

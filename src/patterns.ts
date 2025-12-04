@@ -123,25 +123,57 @@ function placeFormatInformation(
   formatInfo: string
 ): number[][] {
   const size = matrix.length;
-  // Top-left: vertical
+
+  // Format info bits are indexed 0-14
+  // Top-left area: around the top-left finder pattern
+  // Vertical strip (column 8, rows 0-5, then 7, 8)
   for (let i = 0; i < 6; i++) {
-    matrix[i]![8] = parseInt(formatInfo[i] ?? "0", 10);
+    matrix[i]![8] = parseInt(formatInfo[i]!, 10);
   }
-  // Top-left: horizontal
+  matrix[7]![8] = parseInt(formatInfo[6]!, 10);
+  matrix[8]![8] = parseInt(formatInfo[7]!, 10);
+  matrix[8]![7] = parseInt(formatInfo[8]!, 10);
+  // Horizontal strip (row 8, columns 5-0)
+  for (let i = 0; i < 6; i++) {
+    matrix[8]![5 - i] = parseInt(formatInfo[9 + i]!, 10);
+  }
+
+  // Top-right area: row 8, columns (size-8) to (size-1)
   for (let i = 0; i < 8; i++) {
-    matrix[8]![size - 8 + i] = parseInt(formatInfo[7 + i] ?? "0", 10); // Top-right
-    if (i < 7) {
-      matrix[size - 1 - i]![8] = parseInt(formatInfo[i] ?? "0", 10); // Bottom-left
-    }
+    matrix[8]![size - 8 + i] = parseInt(formatInfo[14 - i]!, 10);
   }
-  matrix[7]![8] = parseInt(formatInfo[6] ?? "0", 10);
-  matrix[8]![8] = parseInt(formatInfo[7] ?? "0", 10);
-  matrix[8]![7] = parseInt(formatInfo[8] ?? "0", 10);
-  for (let i = 9; i < 15; i++) {
-    matrix[8]![14 - i] = parseInt(formatInfo[i] ?? "0", 10);
+
+  // Bottom-left area: column 8, rows (size-7) to (size-1)
+  for (let i = 0; i < 7; i++) {
+    matrix[size - 7 + i]![8] = parseInt(formatInfo[14 - i]!, 10);
   }
+
   return matrix;
 }
+// function placeFormatInformation(
+//   matrix: number[][],
+//   formatInfo: string
+// ): number[][] {
+//   const size = matrix.length;
+//   // Top-left: vertical
+//   for (let i = 0; i < 6; i++) {
+//     matrix[i]![8] = parseInt(formatInfo[i] ?? "0", 10);
+//   }
+//   // Top-left: horizontal
+//   for (let i = 0; i < 8; i++) {
+//     matrix[8]![size - 8 + i] = parseInt(formatInfo[7 + i] ?? "0", 10); // Top-right
+//     if (i < 7) {
+//       matrix[size - 1 - i]![8] = parseInt(formatInfo[i] ?? "0", 10); // Bottom-left
+//     }
+//   }
+//   matrix[7]![8] = parseInt(formatInfo[6] ?? "0", 10);
+//   matrix[8]![8] = parseInt(formatInfo[7] ?? "0", 10);
+//   matrix[8]![7] = parseInt(formatInfo[8] ?? "0", 10);
+//   for (let i = 9; i < 15; i++) {
+//     matrix[8]![14 - i] = parseInt(formatInfo[i] ?? "0", 10);
+//   }
+//   return matrix;
+// }
 // createFormatInformationEncoding(
 //   errorCorrectionLevel: ErrorCorrectionLevel,
 //   maskPattern: number
@@ -244,13 +276,49 @@ function placeQuietZone(matrix: number[][], quietZoneSize: number): number[][] {
   return newMatrix;
 }
 
+function placeDataBits(
+  matrix: number[][],
+  dataBits: number[],
+  isFunctionModule: boolean[][]
+): number[][] {
+  const size = matrix.length;
+  let col = size - 1;
+  let direction = -1; // up
+  let bitIndex = 0;
+
+  while (col > 0) {
+    if (col === 6) col--; // skip timing pattern column
+
+    let row = direction === -1 ? size - 1 : 0; // Reset row for each column pair
+
+    for (let i = 0; i < size; i++) {
+      for (let j = 0; j < 2; j++) {
+        const c = col - j;
+        if (!isFunctionModule[row]![c] && bitIndex < dataBits.length) {
+          matrix[row]![c] = dataBits[bitIndex++];
+        }
+      }
+      row += direction;
+      if (row < 0 || row >= size) {
+        direction *= -1;
+        break;
+      }
+    }
+    direction *= -1;
+    col -= 2;
+  }
+  return matrix;
+}
+
 export {
   placeFinderPattern,
   placeDarkModule,
   createFormatInformationEncoding,
   placeFormatInformation,
   createVersionInformationEncoding,
+  placeVersionInformation,
   placeQuietZone,
   placeAlignmentPattern,
-  placeTimingPatterns
+  placeTimingPatterns,
+  placeDataBits
 };

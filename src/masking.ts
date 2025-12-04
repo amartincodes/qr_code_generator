@@ -1,12 +1,13 @@
 function selectBestMaskPattern(
   matrix: number[][],
-  applyDataMask: (m: number[][], mask: number) => number[][]
+  isFunctionModule: boolean[][]
 ): number {
   let bestMask = 0;
   let lowestPenalty = Infinity;
-
   for (let mask = 0; mask < 8; mask++) {
-    const maskedMatrix = applyDataMask(matrix, mask);
+    // Create a deep copy to avoid mutating the original
+    const matrixCopy = matrix.map((row) => row.slice());
+    const maskedMatrix = applyDataMask(matrixCopy, mask, isFunctionModule);
     const penalty = calculateMaskPenalty(maskedMatrix);
     if (penalty < lowestPenalty) {
       lowestPenalty = penalty;
@@ -56,13 +57,16 @@ function calculateMaskPenalty(matrix: number[][]): number {
   }
 
   // Rule 3: Finder-like patterns in rows/columns
-  const pattern = [1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0];
+  const pattern1 = [1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0];
+  const pattern2 = [0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1];
   for (let i = 0; i < size; i++) {
     for (let j = 0; j <= size - 11; j++) {
-      // Row
-      if (pattern.every((v, k) => matrix[i]![j + k] === v)) penalty += 40;
-      // Column
-      if (pattern.every((v, k) => matrix[j + k]![i] === v)) penalty += 40;
+      // Row - both patterns
+      if (pattern1.every((v, k) => matrix[i]![j + k] === v)) penalty += 40;
+      if (pattern2.every((v, k) => matrix[i]![j + k] === v)) penalty += 40;
+      // Column - both patterns
+      if (pattern1.every((v, k) => matrix[j + k]![i] === v)) penalty += 40;
+      if (pattern2.every((v, k) => matrix[j + k]![i] === v)) penalty += 40;
     }
   }
 
