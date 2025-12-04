@@ -46,8 +46,6 @@ function createInitialMatrix(
   // console.log("QR Code Matrix with Timing Patterns:");
   // console.table(matrix);
 
-  placeDarkModule(matrix, size);
-
   // reserve format information areas
   for (let i = 0; i < 9; i++) {
     if (i !== 6) {
@@ -59,6 +57,9 @@ function createInitialMatrix(
     matrix[8]![i] = 0; // Top-right
     matrix[i]![8] = 0; // Bottom-left
   }
+
+  placeDarkModule(matrix, size);
+
   console.log("Final QR Code Matrix with Reserved Areas:");
   console.table(matrix);
 

@@ -14,49 +14,6 @@ describe("QRCodeGenerator", () => {
     qrCodeGenerator = new QRCodeGenerator();
   });
 
-  // describe("createQRCodeMatrix", () => {
-  //   it("should create a QR code matrix for numeric data", () => {
-  //     const data = "1234567890";
-  //     const options = {
-  //       encodingMode: EncodingMode.NUMERIC,
-  //       errorCorrectionLevel: "L",
-  //       version: 4
-  //     } as QRCodeOptions;
-  //     const encodedData = qrCodeGenerator.encodeData(data, options);
-  //     const finalData = qrCodeGenerator.implementErrorCorrection(
-  //       encodedData,
-  //       options.errorCorrectionLevel
-  //     );
-  //     const matrix = qrCodeGenerator.createQRCodeMatrix(finalData, options);
-  //
-  //     // For version 4, the matrix should be 33x33
-  //     expect(matrix.length).toBe(33);
-  //     expect(matrix[0].length).toBe(33);
-  //   });
-  // });
-
-  // describe("applyDataMask", () => {
-  //   it("should apply data mask to the QR code matrix", () => {
-  //     const data = "1234567890";
-  //     const options = {
-  //       encodingMode: EncodingMode.NUMERIC,
-  //       errorCorrectionLevel: "L",
-  //       version: 4
-  //     } as QRCodeOptions;
-  //     const encodedData = qrCodeGenerator.encodeData(data, options);
-  //     const finalData = qrCodeGenerator.implementErrorCorrection(
-  //       encodedData,
-  //       options.errorCorrectionLevel
-  //     );
-  //     const matrix = qrCodeGenerator.createQRCodeMatrix(finalData, options);
-  //     const maskedMatrix = qrCodeGenerator.applyDataMask(matrix, 0);
-  //
-  //     // The masked matrix should have the same dimensions as the original matrix
-  //     expect(maskedMatrix.length).toBe(matrix.length);
-  //     expect(maskedMatrix[0].length).toBe(matrix[0].length);
-  //   });
-  // });
-
   // describe("createFormatInformationEncoding", () => {
   //   it("should create format information encoding for L level and mask pattern 4", () => {
   //     const formatInfo = qrCodeGenerator.createFormatInformationEncoding(

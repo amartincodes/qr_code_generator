@@ -5,30 +5,12 @@ import {
   EncodingMode,
   EncodingModeIndicator,
   ErrorCorrectionLevel,
-  NumberOfDataCodewordsLvl4,
-  QRCodeSizeByVersion
+  NumberOfDataCodewordsLvl4
 } from "./types";
-import type { QRCodeOptions } from "./types";
-import { detectBestEncoding, encodeData } from "./encoding";
-import { selectBestMaskPattern, applyDataMask } from "./masking";
-import { implementErrorCorrection } from "./errorCorrection";
-import {
-  placeFinderPattern,
-  placeAlignmentPattern,
-  placeTimingPatterns,
-  placeDarkModule,
-  placeFormatInformation,
-  createFormatInformationEncoding,
-  placeQuietZone,
-  placeDataBits
-} from "./patterns";
+import { detectBestEncoding } from "./encoding";
 import { createQrCodeMatrix } from "./matrix";
 
 class QRCodeGenerator {
-  constructor() {
-    // this.generate = this.generate.bind(this);
-  }
-
   validateInput(data: string): boolean {
     return data.length > 0 && data.length <= 2953; // Max length for QR Code version 40-L
   }
