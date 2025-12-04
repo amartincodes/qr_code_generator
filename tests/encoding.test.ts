@@ -14,7 +14,7 @@ import {
   NumberOfDataCodewordsLvl4
 } from "../src/types";
 
-describe("QRCodeGenerator", () => {
+describe("Encoding tests: ", () => {
   // let qrCodeGenerator: QRCodeGenerator;
   //
   // beforeEach(() => {
