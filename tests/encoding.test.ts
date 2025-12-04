@@ -10,7 +10,7 @@ import {
 import {
   EncodingMode,
   ErrorCorrectionLevel,
-  QRCodeOptions,
+  type QRCodeOptions,
   NumberOfDataCodewordsLvl4
 } from "../src/types";
 
@@ -47,6 +47,25 @@ describe("QRCodeGenerator", () => {
       const encoding = detectBestEncoding("https://www.example.com");
       expect(encoding).toBe(EncodingMode.BYTE);
     });
+    it("should detect a url correctly and return BYTE encoding", () => {
+      const encoding = detectBestEncoding("https://www.example.com");
+      expect(encoding).toBe(EncodingMode.BYTE);
+    });
+
+    it("should detect lowercase letters as BYTE encoding", () => {
+      const encoding = detectBestEncoding("hello");
+      expect(encoding).toBe(EncodingMode.BYTE);
+    });
+
+    it("should detect special alphanumeric characters correctly", () => {
+      const encoding = detectBestEncoding("HELLO-WORLD");
+      expect(encoding).toBe(EncodingMode.ALPHANUMERIC);
+    });
+
+    it("should detect mixed case as BYTE encoding", () => {
+      const encoding = detectBestEncoding("Hello World");
+      expect(encoding).toBe(EncodingMode.BYTE);
+    });
   });
 
   describe("encodeDataToBinary", () => {
@@ -58,11 +77,16 @@ describe("QRCodeGenerator", () => {
       expect(encoded).toBe(expectedBinary);
     });
     it("should encode alphanumeric data correctly", () => {
-      const data = "HELLO WORLD 123";
+      const data = "HELLO WORLD";
       const encoded = encodeDataToBinary(data, EncodingMode.ALPHANUMERIC);
-      // Expected binary string for alphanumeric encoding of "HELLO WORLD 123"
+      // HE=779, LL=966, O =1116, WO=1464, RL=1236, D=13
       const expectedBinary =
-        "0110000101101111000110100010111001011011100010011010100010011011010000010111100010000111"; // Encoded data
+        "01100001011" +
+        "01111000110" +
+        "10001011100" +
+        "10110111000" +
+        "10011010100" +
+        "001101";
       expect(encoded).toBe(expectedBinary);
     });
     it("should encode byte data correctly", () => {
@@ -79,6 +103,28 @@ describe("QRCodeGenerator", () => {
       // Expected binary string for kanji encoding of "漢字"
       const expectedBinary = "00111001111110101000011010"; // Encoded data
       expect(encoded).toBe(expectedBinary);
+    });
+
+    it("should encode kanji data correctly", () => {
+      const data = "漢字";
+      const encoded = encodeDataToBinary(data, EncodingMode.KANJI);
+      const expectedBinary = "00111001111110101000011010";
+      expect(encoded).toBe(expectedBinary);
+    });
+
+    it("should encode single digit numeric correctly", () => {
+      const encoded = encodeDataToBinary("5", EncodingMode.NUMERIC);
+      expect(encoded).toBe("0101"); // 4 bits for single digit
+    });
+
+    it("should encode two digit numeric correctly", () => {
+      const encoded = encodeDataToBinary("42", EncodingMode.NUMERIC);
+      expect(encoded).toBe("0101010"); // 7 bits for two digits
+    });
+
+    it("should encode single alphanumeric character correctly", () => {
+      const encoded = encodeDataToBinary("A", EncodingMode.ALPHANUMERIC);
+      expect(encoded).toBe("001010"); // 6 bits for single char (value 10)
     });
   });
 
@@ -200,6 +246,65 @@ describe("QRCodeGenerator", () => {
         expectedPaddedBinary.match(/.{1,8}/g)!.map((byte) => parseInt(byte, 2))
       );
       expect(encoded).toEqual(expectedUint8Array);
+    });
+    it("should encode alphanumeric data correctly", () => {
+      const data = "HELLO";
+      const options = {
+        encodingMode: EncodingMode.ALPHANUMERIC,
+        errorCorrectionLevel: ErrorCorrectionLevel.L,
+        version: 4
+      } as QRCodeOptions;
+      const encoded = encodeData(data, options);
+
+      const modeIndicator = "0010";
+      const characterCountIndicator = "000000101";
+      // HE=779(11 bits), LL=966(11 bits), O=24(6 bits)
+      const dataBits = "01100001011" + "01111000110" + "011000";
+      const expectedBinary = modeIndicator + characterCountIndicator + dataBits;
+      const expectedPaddedBinary = padBinaryString(
+        expectedBinary,
+        options.errorCorrectionLevel
+      );
+      const expectedUint8Array = new Uint8Array(
+        expectedPaddedBinary.match(/.{1,8}/g)!.map((byte) => parseInt(byte, 2))
+      );
+      expect(encoded).toEqual(expectedUint8Array);
+    });
+
+    it("should encode byte data correctly", () => {
+      const data = "Hello";
+      const options = {
+        encodingMode: EncodingMode.BYTE,
+        errorCorrectionLevel: ErrorCorrectionLevel.M,
+        version: 4
+      } as QRCodeOptions;
+      const encoded = encodeData(data, options);
+
+      const modeIndicator = "0100";
+      const characterCountIndicator = "00000101";
+      const dataBits = "0100100001100101011011000110110001101111";
+      const expectedBinary = modeIndicator + characterCountIndicator + dataBits;
+      const expectedPaddedBinary = padBinaryString(
+        expectedBinary,
+        options.errorCorrectionLevel
+      );
+      const expectedUint8Array = new Uint8Array(
+        expectedPaddedBinary.match(/.{1,8}/g)!.map((byte) => parseInt(byte, 2))
+      );
+      expect(encoded).toEqual(expectedUint8Array);
+    });
+
+    it("should throw error when data exceeds capacity", () => {
+      const data = "A".repeat(200); // Too long for version 4
+      const options = {
+        encodingMode: EncodingMode.BYTE,
+        errorCorrectionLevel: ErrorCorrectionLevel.H,
+        version: 4
+      } as QRCodeOptions;
+
+      expect(() => encodeData(data, options)).toThrow(
+        "Data exceeds capacity for the selected error correction level."
+      );
     });
   });
 

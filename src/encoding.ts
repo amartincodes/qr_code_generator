@@ -4,9 +4,9 @@ import {
   EncodingModeIndicator,
   CharacterCountIndicator,
   ErrorCorrectionLevel,
+  type QRCodeOptions,
   NumberOfDataCodewordsLvl4
 } from "./types";
-import type { QRCodeOptions } from "./types";
 
 function detectBestEncoding(data: string): EncodingMode {
   // Support for numerical, alphanumeric, byte, and kanji modes can be added here
@@ -95,12 +95,16 @@ function encodeDataToBinary(data: string, encodingMode: EncodingMode): string {
     case EncodingMode.ALPHANUMERIC:
       const alphanumericTable = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
       for (let i = 0; i < data.length; i += 2) {
-        const firstChar = alphanumericTable.indexOf(data[i] || "");
-        const secondChar = alphanumericTable.indexOf(data[i + 1] || "");
-        const value =
-          secondChar === -1 ? firstChar : firstChar * 45 + secondChar;
-        const bitLength = secondChar === -1 ? 6 : 11;
-        encodedData += value.toString(2).padStart(bitLength, "0");
+        const firstChar = alphanumericTable.indexOf(data[i]!);
+        if (i + 1 < data.length) {
+          // Pair of characters: 11 bits
+          const secondChar = alphanumericTable.indexOf(data[i + 1]!);
+          const value = firstChar * 45 + secondChar;
+          encodedData += value.toString(2).padStart(11, "0");
+        } else {
+          // Single character: 6 bits
+          encodedData += firstChar.toString(2).padStart(6, "0");
+        }
       }
       break;
     case EncodingMode.BYTE:
