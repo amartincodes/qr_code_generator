@@ -89,24 +89,23 @@ function createFormatInformationEncoding(
   // Step 2: Append 10 zeros (shift left by 10 bits)
   let data = formatInfoWithoutBCH + "0000000000";
 
-  // Step 3: Polynomial division (modulo 2, XOR)
-  const generator = "10100110111";
   function xorStrings(a: string, b: string): string {
     return a
       .split("")
       .map((c, i) => (c === b[i] ? "0" : "1"))
       .join("");
   }
-  while (data.length >= generator.length) {
-    if (data[0] === "1") {
-      const paddedGen = generator.padEnd(data.length, "0");
-      data = xorStrings(data, paddedGen);
+
+  // Step 3: Polynomial division (modulo 2, XOR)
+  const generator = 0b10100110111;
+  let dataNum = parseInt(formatInfoWithoutBCH, 2) << 10;
+  for (let i = 14; i >= 10; i--) {
+    if ((dataNum >> i) & 1) {
+      dataNum ^= generator << (i - 10);
     }
-    // Remove leading zero(s)
-    data = data.replace(/^0+/, "");
   }
   // Step 4: Pad to 10 bits
-  const bchCode = data.padStart(10, "0");
+  const bchCode = dataNum.toString(2).padStart(15, "0").slice(-10);
 
   // Step 5: Concatenate format info and error correction bits
   let formatInfo = formatInfoWithoutBCH + bchCode;
@@ -282,31 +281,35 @@ function placeDataBits(
   isFunctionModule: boolean[][]
 ): number[][] {
   const size = matrix.length;
-  let col = size - 1;
-  let direction = -1; // up
   let bitIndex = 0;
 
-  while (col > 0) {
-    if (col === 6) col--; // skip timing pattern column
+  // Start from the bottom-right corner, move in 2-column strips
+  for (let right = size - 1; right >= 1; right -= 2) {
+    // Skip the timing pattern column
+    let col = right;
+    if (col === 6) col = 5;
 
-    let row = direction === -1 ? size - 1 : 0; // Reset row for each column pair
+    // Determine if we're going up or down
+    // Right-most strip goes up, then alternates
+    const stripIndex = (size - 1 - right) / 2;
+    const goingUp = stripIndex % 2 === 0;
 
     for (let i = 0; i < size; i++) {
+      const row = goingUp ? size - 1 - i : i;
+
+      // Process right column then left column of the 2-column strip
       for (let j = 0; j < 2; j++) {
         const c = col - j;
-        if (!isFunctionModule[row]![c] && bitIndex < dataBits.length) {
-          matrix[row]![c] = dataBits[bitIndex++];
-        }
-      }
-      row += direction;
-      if (row < 0 || row >= size) {
-        direction *= -1;
-        break;
+        if (c < 0) continue;
+        if (c === 6) continue; // Skip timing column
+        if (isFunctionModule[row]![c]) continue;
+        if (bitIndex >= dataBits.length) continue;
+
+        matrix[row]![c] = dataBits[bitIndex++]!;
       }
     }
-    direction *= -1;
-    col -= 2;
   }
+
   return matrix;
 }
 

@@ -56,17 +56,48 @@ function calculateMaskPenalty(matrix: number[][]): number {
     }
   }
 
-  // Rule 3: Finder-like patterns in rows/columns
-  const pattern1 = [1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0];
-  const pattern2 = [0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1];
+  // Rule 3: Finder-like patterns in rows/columns (with 4 light modules before/after)
+  const pattern = [1, 0, 1, 1, 1, 0, 1];
   for (let i = 0; i < size; i++) {
     for (let j = 0; j <= size - 11; j++) {
-      // Row - both patterns
-      if (pattern1.every((v, k) => matrix[i]![j + k] === v)) penalty += 40;
-      if (pattern2.every((v, k) => matrix[i]![j + k] === v)) penalty += 40;
-      // Column - both patterns
-      if (pattern1.every((v, k) => matrix[j + k]![i] === v)) penalty += 40;
-      if (pattern2.every((v, k) => matrix[j + k]![i] === v)) penalty += 40;
+      // Row
+      if (
+        pattern.every((v, k) => matrix[i]![j + k] === v) &&
+        matrix[i]![j + 7] === 0 &&
+        matrix[i]![j + 8] === 0 &&
+        matrix[i]![j + 9] === 0 &&
+        matrix[i]![j + 10] === 0
+      ) {
+        penalty += 40;
+      }
+      if (
+        pattern.every((v, k) => matrix[i]![j + 4 + k] === v) &&
+        matrix[i]![j] === 0 &&
+        matrix[i]![j + 1] === 0 &&
+        matrix[i]![j + 2] === 0 &&
+        matrix[i]![j + 3] === 0
+      ) {
+        penalty += 40;
+      }
+      // Column
+      if (
+        pattern.every((v, k) => matrix[j + k]![i] === v) &&
+        matrix[j + 7]![i] === 0 &&
+        matrix[j + 8]![i] === 0 &&
+        matrix[j + 9]![i] === 0 &&
+        matrix[j + 10]![i] === 0
+      ) {
+        penalty += 40;
+      }
+      if (
+        pattern.every((v, k) => matrix[j + 4 + k]![i] === v) &&
+        matrix[j]![i] === 0 &&
+        matrix[j + 1]![i] === 0 &&
+        matrix[j + 2]![i] === 0 &&
+        matrix[j + 3]![i] === 0
+      ) {
+        penalty += 40;
+      }
     }
   }
 
