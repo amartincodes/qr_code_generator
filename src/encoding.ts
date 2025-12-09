@@ -224,6 +224,7 @@ function reedSolomonEncode(data: Uint8Array, ecCodewords: number): Uint8Array {
     }
     remainder[ecCodewords - 1] = 0;
     // XOR with generator polynomial multiplied by coef
+    // Use gen[j + 1] to skip the leading coefficient (gen[0] = 1)
     for (let j = 0; j < ecCodewords; j++) {
       remainder[j] ^= gfMul(coef, gen[j + 1]!);
     }

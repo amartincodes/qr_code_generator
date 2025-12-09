@@ -75,46 +75,53 @@ function createFormatInformationEncoding(
   errorCorrectionLevel: ErrorCorrectionLevel,
   maskPattern: number
 ): string {
-  // Step 1: Build 5-bit format info
-  const ecLevelBitsMap: { [key in ErrorCorrectionLevel]: string } = {
-    L: "01",
-    M: "00",
-    Q: "11",
-    H: "10"
+  // Pre-computed format information strings (15 bits after BCH encoding and masking)
+  // These are defined in the QR code specification ISO/IEC 18004
+  // Format: [EC Level][Mask Pattern]
+  const formatInfoTable: { [key in ErrorCorrectionLevel]: string[] } = {
+    L: [
+      "111011111000100", // Mask 0
+      "111001011110011", // Mask 1
+      "111110110101010", // Mask 2
+      "111100010011101", // Mask 3
+      "110011000101111", // Mask 4
+      "110001100011000", // Mask 5
+      "110110001000001", // Mask 6
+      "110100101110110" // Mask 7
+    ],
+    M: [
+      "101010000010010", // Mask 0
+      "101000100100101", // Mask 1
+      "101111001111100", // Mask 2
+      "101101101001011", // Mask 3
+      "100010111111001", // Mask 4
+      "100000011001110", // Mask 5
+      "100111110010111", // Mask 6
+      "100101010100000" // Mask 7
+    ],
+    Q: [
+      "011010101011111", // Mask 0
+      "011000001101000", // Mask 1
+      "011111100110001", // Mask 2
+      "011101000000110", // Mask 3
+      "010010010110100", // Mask 4
+      "010000110000011", // Mask 5
+      "010111011011010", // Mask 6
+      "010101111101101" // Mask 7
+    ],
+    H: [
+      "001011010001001", // Mask 0
+      "001001110111110", // Mask 1
+      "001110011100111", // Mask 2
+      "001100111010000", // Mask 3
+      "000011101100010", // Mask 4
+      "000001001010101", // Mask 5
+      "000110100001100", // Mask 6
+      "000100000111011" // Mask 7
+    ]
   };
-  const ecLevelBits = ecLevelBitsMap[errorCorrectionLevel];
-  const maskPatternBits = maskPattern.toString(2).padStart(3, "0");
-  const formatInfoWithoutBCH = ecLevelBits + maskPatternBits; // 5 bits
 
-  // Step 2: Append 10 zeros (shift left by 10 bits)
-  let data = formatInfoWithoutBCH + "0000000000";
-
-  function xorStrings(a: string, b: string): string {
-    return a
-      .split("")
-      .map((c, i) => (c === b[i] ? "0" : "1"))
-      .join("");
-  }
-
-  // Step 3: Polynomial division (modulo 2, XOR)
-  const generator = 0b10100110111;
-  let dataNum = parseInt(formatInfoWithoutBCH, 2) << 10;
-  for (let i = 14; i >= 10; i--) {
-    if ((dataNum >> i) & 1) {
-      dataNum ^= generator << (i - 10);
-    }
-  }
-  // Step 4: Pad to 10 bits
-  const bchCode = dataNum.toString(2).padStart(15, "0").slice(-10);
-
-  // Step 5: Concatenate format info and error correction bits
-  let formatInfo = formatInfoWithoutBCH + bchCode;
-
-  // Step 6: XOR with mask pattern
-  const mask = "101010000010010";
-  formatInfo = xorStrings(formatInfo, mask);
-
-  return formatInfo;
+  return formatInfoTable[errorCorrectionLevel][maskPattern];
 }
 
 function placeFormatInformation(
@@ -124,27 +131,42 @@ function placeFormatInformation(
   const size = matrix.length;
 
   // Format info bits are indexed 0-14
-  // Top-left area: around the top-left finder pattern
-  // Vertical strip (column 8, rows 0-5, then 7, 8)
-  for (let i = 0; i < 6; i++) {
-    matrix[i]![8] = parseInt(formatInfo[i]!, 10);
-  }
-  matrix[7]![8] = parseInt(formatInfo[6]!, 10);
-  matrix[8]![8] = parseInt(formatInfo[7]!, 10);
-  matrix[8]![7] = parseInt(formatInfo[8]!, 10);
-  // Horizontal strip (row 8, columns 5-0)
-  for (let i = 0; i < 6; i++) {
-    matrix[8]![5 - i] = parseInt(formatInfo[9 + i]!, 10);
-  }
+  // Bits 0-6: horizontal in top-left, vertical in bottom-left
+  // Bits 7-14: vertical in top-left, horizontal in top-right
 
-  // Top-right area: row 8, columns (size-8) to (size-1)
-  for (let i = 0; i < 8; i++) {
-    matrix[8]![size - 8 + i] = parseInt(formatInfo[14 - i]!, 10);
-  }
+  // Top-left horizontal (row 8, columns 0-7, skipping column 6)
+  // Place bits 0-6
+  matrix[8]![0] = parseInt(formatInfo[0]!, 10);
+  matrix[8]![1] = parseInt(formatInfo[1]!, 10);
+  matrix[8]![2] = parseInt(formatInfo[2]!, 10);
+  matrix[8]![3] = parseInt(formatInfo[3]!, 10);
+  matrix[8]![4] = parseInt(formatInfo[4]!, 10);
+  matrix[8]![5] = parseInt(formatInfo[5]!, 10);
+  // Skip column 6 (timing pattern)
+  matrix[8]![7] = parseInt(formatInfo[6]!, 10);
 
-  // Bottom-left area: column 8, rows (size-7) to (size-1)
+  // Bottom-left vertical (column 8, rows size-7 to size-1)
+  // Place bits 0-6 (duplicate)
   for (let i = 0; i < 7; i++) {
-    matrix[size - 7 + i]![8] = parseInt(formatInfo[14 - i]!, 10);
+    matrix[size - 7 + i]![8] = parseInt(formatInfo[i]!, 10);
+  }
+
+  // Top-left vertical (column 8, rows 0-8, skipping row 6)
+  // Place bits 7-14
+  matrix[0]![8] = parseInt(formatInfo[14]!, 10);
+  matrix[1]![8] = parseInt(formatInfo[13]!, 10);
+  matrix[2]![8] = parseInt(formatInfo[12]!, 10);
+  matrix[3]![8] = parseInt(formatInfo[11]!, 10);
+  matrix[4]![8] = parseInt(formatInfo[10]!, 10);
+  matrix[5]![8] = parseInt(formatInfo[9]!, 10);
+  // Skip row 6 (timing pattern)
+  matrix[7]![8] = parseInt(formatInfo[8]!, 10);
+  matrix[8]![8] = parseInt(formatInfo[7]!, 10);
+
+  // Top-right horizontal (row 8, columns size-1 to size-8)
+  // Place bits 7-14 (duplicate)
+  for (let i = 0; i < 8; i++) {
+    matrix[8]![size - 1 - i] = parseInt(formatInfo[14 - i]!, 10);
   }
 
   return matrix;
@@ -285,9 +307,9 @@ function placeDataBits(
 
   // Start from the bottom-right corner, move in 2-column strips
   for (let right = size - 1; right >= 1; right -= 2) {
-    // Skip the timing pattern column
+    // Skip the timing pattern column at column 6
     let col = right;
-    if (col === 6) col = 5;
+    if (right <= 6) col = right - 1;
 
     // Determine if we're going up or down
     // Right-most strip goes up, then alternates
@@ -297,7 +319,8 @@ function placeDataBits(
     for (let i = 0; i < size; i++) {
       const row = goingUp ? size - 1 - i : i;
 
-      // Process right column then left column of the 2-column strip
+      // Process columns in the 2-column strip
+      // Always place right column first, then left column (regardless of direction)
       for (let j = 0; j < 2; j++) {
         const c = col - j;
         if (c < 0) continue;

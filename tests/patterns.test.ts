@@ -87,7 +87,7 @@ describe("Patterns tests: ", () => {
       const matrix = Array.from({ length: 33 }, () =>
         Array.from({ length: 33 }, () => 0)
       );
-      const formatData = "110011000101111";
+      const formatData = "111111101111111";
       const updatedMatrix = placeFormatInformation(matrix, formatData);
       const size = 33;
 
@@ -110,24 +110,24 @@ describe("Patterns tests: ", () => {
       expect(updatedMatrix[8]![1]).toBe(parseInt(formatData[13]!));
       expect(updatedMatrix[8]![0]).toBe(parseInt(formatData[14]!));
 
-      // Top-right area (row 8, columns size-8 to size-1) - bits 14 down to 7
-      expect(updatedMatrix[8]![size - 8]).toBe(parseInt(formatData[14]!));
-      expect(updatedMatrix[8]![size - 7]).toBe(parseInt(formatData[13]!));
-      expect(updatedMatrix[8]![size - 6]).toBe(parseInt(formatData[12]!));
-      expect(updatedMatrix[8]![size - 5]).toBe(parseInt(formatData[11]!));
-      expect(updatedMatrix[8]![size - 4]).toBe(parseInt(formatData[10]!));
-      expect(updatedMatrix[8]![size - 3]).toBe(parseInt(formatData[9]!));
-      expect(updatedMatrix[8]![size - 2]).toBe(parseInt(formatData[8]!));
-      expect(updatedMatrix[8]![size - 1]).toBe(parseInt(formatData[7]!));
+      // Top-right area (row 8, columns size-1 down to size-8) - bits 0 to 7
+      expect(updatedMatrix[8]![size - 1]).toBe(parseInt(formatData[0]!));
+      expect(updatedMatrix[8]![size - 2]).toBe(parseInt(formatData[1]!));
+      expect(updatedMatrix[8]![size - 3]).toBe(parseInt(formatData[2]!));
+      expect(updatedMatrix[8]![size - 4]).toBe(parseInt(formatData[3]!));
+      expect(updatedMatrix[8]![size - 5]).toBe(parseInt(formatData[4]!));
+      expect(updatedMatrix[8]![size - 6]).toBe(parseInt(formatData[5]!));
+      expect(updatedMatrix[8]![size - 7]).toBe(parseInt(formatData[6]!));
+      expect(updatedMatrix[8]![size - 8]).toBe(parseInt(formatData[7]!));
 
-      // Bottom-left area (column 8, rows size-7 to size-1) - bits 14 down to 8
-      expect(updatedMatrix[size - 7]![8]).toBe(parseInt(formatData[14]!));
-      expect(updatedMatrix[size - 6]![8]).toBe(parseInt(formatData[13]!));
-      expect(updatedMatrix[size - 5]![8]).toBe(parseInt(formatData[12]!));
+      // Bottom-left area (column 8, rows size-7 to size-1) - bits 8 to 14
+      expect(updatedMatrix[size - 7]![8]).toBe(parseInt(formatData[8]!));
+      expect(updatedMatrix[size - 6]![8]).toBe(parseInt(formatData[9]!));
+      expect(updatedMatrix[size - 5]![8]).toBe(parseInt(formatData[10]!));
       expect(updatedMatrix[size - 4]![8]).toBe(parseInt(formatData[11]!));
-      expect(updatedMatrix[size - 3]![8]).toBe(parseInt(formatData[10]!));
-      expect(updatedMatrix[size - 2]![8]).toBe(parseInt(formatData[9]!));
-      expect(updatedMatrix[size - 1]![8]).toBe(parseInt(formatData[8]!));
+      expect(updatedMatrix[size - 3]![8]).toBe(parseInt(formatData[12]!));
+      expect(updatedMatrix[size - 2]![8]).toBe(parseInt(formatData[13]!));
+      expect(updatedMatrix[size - 1]![8]).toBe(parseInt(formatData[14]!));
     });
 
     it("should not modify other cells", () => {
