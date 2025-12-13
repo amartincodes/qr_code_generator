@@ -1,5 +1,42 @@
 import { ErrorCorrectionLevel } from "./types";
 
+export const VERSION_INFO: { [version: number]: number } = {
+  7: 0x07c94,
+  8: 0x085bc,
+  9: 0x09a99,
+  10: 0x0a4d3,
+  11: 0x0b08e,
+  12: 0x0b67e,
+  13: 0x0c762,
+  14: 0x0d847,
+  15: 0x0e60d,
+  16: 0x0f928,
+  17: 0x10b78,
+  18: 0x1145d,
+  19: 0x12a17,
+  20: 0x13532,
+  21: 0x149a6,
+  22: 0x15683,
+  23: 0x168c9,
+  24: 0x177ec,
+  25: 0x18ec4,
+  26: 0x191e1,
+  27: 0x1afab,
+  28: 0x1b08e,
+  29: 0x1cc1a,
+  30: 0x1d33f,
+  31: 0x1ed75,
+  32: 0x1f250,
+  33: 0x209d5,
+  34: 0x216f0,
+  35: 0x228ba,
+  36: 0x2379f,
+  37: 0x24b0b,
+  38: 0x2542e,
+  39: 0x26a64,
+  40: 0x27541
+};
+
 function placeFinderPattern(matrix: number[][], row: number, col: number) {
   // Finder pattern (7x7)
   // TODO: Generalise for other versions
@@ -61,7 +98,30 @@ function placeAlignmentPattern(matrix: number[][]): number[][] {
   return matrix;
 }
 
-function placeVersionInformation(matrix: number[][], version: number) {}
+function placeVersionInformation(matrix: number[][], version: number): number[][] {
+  if (version < 7) return matrix; // Only for version 7+
+
+  const versionInfoBits = createVersionInformationEncoding(version);
+  const size = matrix.length;
+
+  // Place version info in top-right
+  for (let i = 0; i < 6; i++) {
+    for (let j = 0; j < 3; j++) {
+      const bit = Number(versionInfoBits[i * 3 + j]);
+      matrix[i]![size - 11 + j] = bit;
+    }
+  }
+
+  // Place version info in bottom-left
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 6; j++) {
+      const bit = Number(versionInfoBits[i * 6 + j]);
+      matrix[size - 11 + j]![i] = bit;
+    }
+  }
+
+  return matrix;
+}
 
 function placeDarkModule(matrix: number[][], size: number): number[][] {
   // Add dark module
@@ -121,7 +181,7 @@ function createFormatInformationEncoding(
     ]
   };
 
-  return formatInfoTable[errorCorrectionLevel][maskPattern];
+  return formatInfoTable[errorCorrectionLevel]![maskPattern];
 }
 
 function placeFormatInformation(
@@ -274,11 +334,15 @@ function placeFormatInformation(
 //   return updatedMatrix;
 // }
 
-// TODO: Implement version information encoding for versions 7 and above
+// Implements version information encoding for versions 7 and above
 function createVersionInformationEncoding(version: number): string {
-  // create the 18-bit version information string for versions 7 and above
-  // Placeholder for version information encoding
-  return "000000000000000000"; // This should be calculated properly
+  // Look up pre-computed version information from VERSION_INFO
+  const versionInfo = VERSION_INFO[version];
+  if (versionInfo === undefined) {
+    throw new Error(`Version information not available for version ${version}`);
+  }
+  // Return as 18-bit binary string
+  return versionInfo.toString(2).padStart(18, "0");
 }
 
 function placeQuietZone(matrix: number[][], quietZoneSize: number): number[][] {

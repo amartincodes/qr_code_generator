@@ -87,47 +87,49 @@ describe("Patterns tests: ", () => {
       const matrix = Array.from({ length: 33 }, () =>
         Array.from({ length: 33 }, () => 0)
       );
-      const formatData = "111111101111111";
+      const formatData = "111101101111111";
       const updatedMatrix = placeFormatInformation(matrix, formatData);
       const size = 33;
 
       // Top-left vertical strip (column 8, rows 0-5, 7, 8)
-      expect(updatedMatrix[0]![8]).toBe(parseInt(formatData[0]!));
-      expect(updatedMatrix[1]![8]).toBe(parseInt(formatData[1]!));
-      expect(updatedMatrix[2]![8]).toBe(parseInt(formatData[2]!));
-      expect(updatedMatrix[3]![8]).toBe(parseInt(formatData[3]!));
-      expect(updatedMatrix[4]![8]).toBe(parseInt(formatData[4]!));
-      expect(updatedMatrix[5]![8]).toBe(parseInt(formatData[5]!));
-      expect(updatedMatrix[7]![8]).toBe(parseInt(formatData[6]!));
+      // Implementation places bits in reverse order: bits 14-7
+      expect(updatedMatrix[0]![8]).toBe(parseInt(formatData[14]!));
+      expect(updatedMatrix[1]![8]).toBe(parseInt(formatData[13]!));
+      expect(updatedMatrix[2]![8]).toBe(parseInt(formatData[12]!));
+      expect(updatedMatrix[3]![8]).toBe(parseInt(formatData[11]!));
+      expect(updatedMatrix[4]![8]).toBe(parseInt(formatData[10]!));
+      expect(updatedMatrix[5]![8]).toBe(parseInt(formatData[9]!));
+      expect(updatedMatrix[7]![8]).toBe(parseInt(formatData[8]!));
       expect(updatedMatrix[8]![8]).toBe(parseInt(formatData[7]!));
 
-      // Top-left horizontal strip (row 8, columns 7, 5-0)
-      expect(updatedMatrix[8]![7]).toBe(parseInt(formatData[8]!));
-      expect(updatedMatrix[8]![5]).toBe(parseInt(formatData[9]!));
-      expect(updatedMatrix[8]![4]).toBe(parseInt(formatData[10]!));
-      expect(updatedMatrix[8]![3]).toBe(parseInt(formatData[11]!));
-      expect(updatedMatrix[8]![2]).toBe(parseInt(formatData[12]!));
-      expect(updatedMatrix[8]![1]).toBe(parseInt(formatData[13]!));
-      expect(updatedMatrix[8]![0]).toBe(parseInt(formatData[14]!));
+      // Top-left horizontal strip (row 8, columns 0-7, skipping 6)
+      // Implementation places bits 0-6
+      expect(updatedMatrix[8]![0]).toBe(parseInt(formatData[0]!));
+      expect(updatedMatrix[8]![1]).toBe(parseInt(formatData[1]!));
+      expect(updatedMatrix[8]![2]).toBe(parseInt(formatData[2]!));
+      expect(updatedMatrix[8]![3]).toBe(parseInt(formatData[3]!));
+      expect(updatedMatrix[8]![4]).toBe(parseInt(formatData[4]!));
+      expect(updatedMatrix[8]![5]).toBe(parseInt(formatData[5]!));
+      expect(updatedMatrix[8]![7]).toBe(parseInt(formatData[6]!));
 
-      // Top-right area (row 8, columns size-1 down to size-8) - bits 0 to 7
-      expect(updatedMatrix[8]![size - 1]).toBe(parseInt(formatData[0]!));
-      expect(updatedMatrix[8]![size - 2]).toBe(parseInt(formatData[1]!));
-      expect(updatedMatrix[8]![size - 3]).toBe(parseInt(formatData[2]!));
-      expect(updatedMatrix[8]![size - 4]).toBe(parseInt(formatData[3]!));
-      expect(updatedMatrix[8]![size - 5]).toBe(parseInt(formatData[4]!));
-      expect(updatedMatrix[8]![size - 6]).toBe(parseInt(formatData[5]!));
-      expect(updatedMatrix[8]![size - 7]).toBe(parseInt(formatData[6]!));
+      // Top-right area (row 8, columns size-1 down to size-8) - bits 14 to 7
+      expect(updatedMatrix[8]![size - 1]).toBe(parseInt(formatData[14]!));
+      expect(updatedMatrix[8]![size - 2]).toBe(parseInt(formatData[13]!));
+      expect(updatedMatrix[8]![size - 3]).toBe(parseInt(formatData[12]!));
+      expect(updatedMatrix[8]![size - 4]).toBe(parseInt(formatData[11]!));
+      expect(updatedMatrix[8]![size - 5]).toBe(parseInt(formatData[10]!));
+      expect(updatedMatrix[8]![size - 6]).toBe(parseInt(formatData[9]!));
+      expect(updatedMatrix[8]![size - 7]).toBe(parseInt(formatData[8]!));
       expect(updatedMatrix[8]![size - 8]).toBe(parseInt(formatData[7]!));
 
-      // Bottom-left area (column 8, rows size-7 to size-1) - bits 8 to 14
-      expect(updatedMatrix[size - 7]![8]).toBe(parseInt(formatData[8]!));
-      expect(updatedMatrix[size - 6]![8]).toBe(parseInt(formatData[9]!));
-      expect(updatedMatrix[size - 5]![8]).toBe(parseInt(formatData[10]!));
-      expect(updatedMatrix[size - 4]![8]).toBe(parseInt(formatData[11]!));
-      expect(updatedMatrix[size - 3]![8]).toBe(parseInt(formatData[12]!));
-      expect(updatedMatrix[size - 2]![8]).toBe(parseInt(formatData[13]!));
-      expect(updatedMatrix[size - 1]![8]).toBe(parseInt(formatData[14]!));
+      // Bottom-left area (column 8, rows size-7 to size-1) - bits 0 to 6
+      expect(updatedMatrix[size - 7]![8]).toBe(parseInt(formatData[0]!));
+      expect(updatedMatrix[size - 6]![8]).toBe(parseInt(formatData[1]!));
+      expect(updatedMatrix[size - 5]![8]).toBe(parseInt(formatData[2]!));
+      expect(updatedMatrix[size - 4]![8]).toBe(parseInt(formatData[3]!));
+      expect(updatedMatrix[size - 3]![8]).toBe(parseInt(formatData[4]!));
+      expect(updatedMatrix[size - 2]![8]).toBe(parseInt(formatData[5]!));
+      expect(updatedMatrix[size - 1]![8]).toBe(parseInt(formatData[6]!));
     });
 
     it("should not modify other cells", () => {
@@ -464,6 +466,40 @@ describe("Patterns tests: ", () => {
       }
       // Should have placed 4 ones (half of 8 bits)
       expect(ones).toBe(4);
+    });
+  });
+
+  describe("placeVersionInformation", () => {
+    function createEmptyMatrix(size: number): number[][] {
+      return Array.from({ length: size }, () => Array(size).fill(0));
+    }
+    it("does nothing for version < 7", () => {
+      const matrix = createEmptyMatrix(21);
+      placeVersionInformation(matrix, 6);
+      // Matrix should remain unchanged
+      expect(matrix).toEqual(createEmptyMatrix(21));
+    });
+    it("should place version information for version 7", () => {
+      const matrix = createEmptyMatrix(45);
+      const updatedMatrix = placeVersionInformation(matrix, 7);
+      const size = 45;
+      const versionInfo = createVersionInformationEncoding(7);
+
+      // Top-right area (rows 0-5, cols size-11 to size-1)
+      for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 3; j++) {
+          const bit = parseInt(versionInfo[i * 3 + j]!);
+          expect(updatedMatrix[i]![size - 11 + j]).toBe(bit);
+        }
+      }
+
+      // Bottom-left area (rows size-11 to size-1, cols 0-2)
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 6; j++) {
+          const bit = parseInt(versionInfo[i * 6 + j]!);
+          expect(updatedMatrix[size - 11 + j]![i]).toBe(bit);
+        }
+      }
     });
   });
 });
