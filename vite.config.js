@@ -1,15 +1,18 @@
 import { defineConfig } from "vite";
+import { resolve } from "path";
 
 export default defineConfig({
   build: {
     lib: {
-      entry: "src/index.ts",
-      formats: ["es"],
-      fileName: "index"
+      entry: {
+        index: resolve(__dirname, "src/index.ts"),
+        cli: resolve(__dirname, "src/cli.ts")
+      },
+      formats: ["es"]
     },
     outDir: "dist",
     rollupOptions: {
-      external: []
+      external: ["encoding-japanese", "pngjs", "fs", "path"]
     }
   }
 });

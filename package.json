@@ -1,11 +1,36 @@
 {
-  "name": "qr_code_gen",
+  "name": "@amartincodes/qr-code-gen",
   "version": "1.0.0",
-  "description": "",
-  "license": "ISC",
-  "author": "cubanmercury",
+  "description": "CLI tool and library to generate QR codes in PNG format.",
+  "license": "MIT",
+  "author": "amartincodes",
   "type": "module",
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "keywords": [
+    "qr",
+    "qrcode",
+    "qr-code",
+    "qr-code-generator",
+    "png",
+    "cli"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amartincodes/qr_code_gen.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "bin": {
+    "qr-code-gen": "dist/cli.js"
+  },
   "scripts": {
     "test": "jest",
     "clean": "rm -rf dist",

@@ -1,0 +1,12 @@
+src/
+tests/
+node_modules/
+.git/
+.gitignore
+.eslintrc.js
+.prettierrc
+jest.config.js
+tsconfig.json
+vite.config.js
+notes.txt
+*.log
