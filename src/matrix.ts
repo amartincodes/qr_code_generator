@@ -1,10 +1,12 @@
 import {
   EncodingMode,
   ErrorCorrectionLevel,
-  QRCodeSizeByVersion
+  QRCodeSizeByVersion,
+  getQRCodeSize
 } from "./types";
 import type { QRCodeOptions } from "./types";
 import { implementErrorCorrection } from "./errorCorrection";
+import { ALIGNMENT_PATTERN_POSITIONS } from "./patterns";
 import {
   placeFinderPattern,
   placeAlignmentPattern,
@@ -18,16 +20,12 @@ import {
 import { selectBestMaskPattern, applyDataMask } from "./masking";
 import { encodeData } from "./encoding";
 
-const VERSION = 4; // Example: Version 4 QR Code
 function createInitialMatrix(
   dataWithEc: Uint8Array,
   options: QRCodeOptions
 ): number[][] {
-  // Placeholder: In a real implementation, this would map data bits into the QR code matrix
-  const size =
-    QRCodeSizeByVersion[
-      `VERSION_${options.version}` as keyof typeof QRCodeSizeByVersion
-    ];
+  // Get QR code matrix size based on version
+  const size = getQRCodeSize(options.version);
   const matrix: number[][] = Array.from({ length: size }, () =>
     Array(size).fill(0)
   );
@@ -40,7 +38,7 @@ function createInitialMatrix(
   // Bottom-left
   placeFinderPattern(matrix, size - 7, 0);
 
-  placeAlignmentPattern(matrix);
+  placeAlignmentPattern(matrix, options.version);
 
   placeTimingPatterns(matrix, size);
   // console.log("QR Code Matrix with Timing Patterns:");
@@ -69,7 +67,7 @@ function createInitialMatrix(
     Array.from(dataWithEc).flatMap((byte) =>
       Array.from({ length: 8 }, (_, i) => (byte >> (7 - i)) & 1)
     ),
-    createIsFunctionModuleMatrix(size)
+    createIsFunctionModuleMatrix(size, options.version)
   );
 
   console.log("Final QR Code Matrix with Data Bits:");
@@ -78,7 +76,7 @@ function createInitialMatrix(
   return matrix;
 }
 
-function createIsFunctionModuleMatrix(size: number): boolean[][] {
+function createIsFunctionModuleMatrix(size: number, version: number): boolean[][] {
   const matrix: boolean[][] = Array.from({ length: size }, () =>
     Array(size).fill(false)
   );
@@ -109,13 +107,27 @@ function createIsFunctionModuleMatrix(size: number): boolean[][] {
     matrix[i]![6] = true;
   }
 
-  // Alignment pattern at (26, 26) for version 4
-  // TODO: Generalize for other versions using alignment pattern table
-  const alignRow = 26;
-  const alignCol = 26;
-  for (let r = alignRow - 2; r <= alignRow + 2; r++) {
-    for (let c = alignCol - 2; c <= alignCol + 2; c++) {
-      matrix[r]![c] = true;
+  // Alignment patterns (version-aware)
+  const positions = ALIGNMENT_PATTERN_POSITIONS[version];
+  if (positions && positions.length > 0) {
+    for (const row of positions) {
+      for (const col of positions) {
+        // Skip if overlaps with finder patterns
+        const overlapsTopLeft = (row <= 8 && col <= 8);
+        const overlapsTopRight = (row <= 8 && col >= size - 9);
+        const overlapsBottomLeft = (row >= size - 9 && col <= 8);
+
+        if (overlapsTopLeft || overlapsTopRight || overlapsBottomLeft) {
+          continue;
+        }
+
+        // Mark 5x5 alignment pattern area
+        for (let r = row - 2; r <= row + 2; r++) {
+          for (let c = col - 2; c <= col + 2; c++) {
+            matrix[r]![c] = true;
+          }
+        }
+      }
     }
   }
 
@@ -137,11 +149,24 @@ function createIsFunctionModuleMatrix(size: number): boolean[][] {
     matrix[r]![8] = true;
   }
 
-  // Dark module (always at (4*version + 9, 8) = (25, 8) for version 4)
+  // Dark module (always at (size - 8, 8))
   matrix[size - 8]![8] = true;
 
   // Version information areas (for versions >= 7 only)
-  // TODO: Add when supporting versions 7+
+  if (version >= 7) {
+    // Bottom-left area: 6 rows × 3 columns
+    for (let r = size - 11; r < size - 8; r++) {
+      for (let c = 0; c < 6; c++) {
+        matrix[r]![c] = true;
+      }
+    }
+    // Top-right area: 3 rows × 6 columns
+    for (let r = 0; r < 6; r++) {
+      for (let c = size - 11; c < size - 8; c++) {
+        matrix[r]![c] = true;
+      }
+    }
+  }
 
   return matrix;
 }
@@ -149,26 +174,28 @@ function createIsFunctionModuleMatrix(size: number): boolean[][] {
 function createQrCodeMatrix(
   data: string,
   encoding: EncodingMode,
-  errorCorrectionLevel: ErrorCorrectionLevel
+  errorCorrectionLevel: ErrorCorrectionLevel,
+  version: number = 4 // Default to version 4 for backward compatibility
 ): number[][] {
   const encodedData = encodeData(data, {
     encodingMode: encoding,
     errorCorrectionLevel,
-    version: VERSION
+    version
   });
   console.log("Encoded Data Bytes:", encodedData);
   const dataWithEc = implementErrorCorrection(
     encodedData,
-    errorCorrectionLevel
+    errorCorrectionLevel,
+    version
   );
   console.log("Data with Error Correction Bytes:", dataWithEc);
   let qrMatrix = createInitialMatrix(dataWithEc, {
     encodingMode: encoding,
     errorCorrectionLevel,
-    version: VERSION
+    version
   });
 
-  const isFunctionModule = createIsFunctionModuleMatrix(qrMatrix.length);
+  const isFunctionModule = createIsFunctionModuleMatrix(qrMatrix.length, version);
   const bestMask = selectBestMaskPattern(qrMatrix, isFunctionModule);
   console.log("Best Mask Pattern Selected:", bestMask);
   qrMatrix = applyDataMask(qrMatrix, bestMask, isFunctionModule);

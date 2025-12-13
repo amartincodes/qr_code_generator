@@ -249,7 +249,7 @@ describe("Patterns tests: ", () => {
   describe("placeAlignmentPattern", () => {
     it("should place 5x5 alignment pattern at (26,26) for version 4", () => {
       const matrix = Array.from({ length: 33 }, () => Array(33).fill(0));
-      placeAlignmentPattern(matrix);
+      placeAlignmentPattern(matrix, 4);
 
       // Center should be black
       expect(matrix[26]![26]).toBe(1);
@@ -269,7 +269,7 @@ describe("Patterns tests: ", () => {
 
     it("should return the modified matrix", () => {
       const matrix = Array.from({ length: 33 }, () => Array(33).fill(0));
-      const result = placeAlignmentPattern(matrix);
+      const result = placeAlignmentPattern(matrix, 4);
 
       expect(result).toBe(matrix);
     });

@@ -21,7 +21,7 @@ describe("QRCodeGenerator", () => {
 
   afterAll(async () => {
     // Add a small delay to ensure all file operations are complete
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Clean up all test-generated files
     try {
@@ -29,7 +29,7 @@ describe("QRCodeGenerator", () => {
         fs.rmSync(testQrCodesDir, { recursive: true, force: true });
       }
     } catch (error) {
-      console.error('Error during cleanup:', error);
+      console.error("Error during cleanup:", error);
     }
   });
 
@@ -54,7 +54,7 @@ describe("QRCodeGenerator", () => {
       qrCodeGenerator.saveQRCodeAsImage(qrCodeMatrix, filePath);
 
       // Wait for the file to be written (async operation)
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
       expect(fs.existsSync(filePath)).toBe(true);
     });
@@ -93,7 +93,8 @@ describe("QRCodeGenerator", () => {
       // Step 3: Error correction
       const dataWithEc = implementErrorCorrection(
         encodedData,
-        ErrorCorrectionLevel.L
+        ErrorCorrectionLevel.L,
+        options.version
       );
       console.log("3. Data + EC length:", dataWithEc.length, "bytes");
       console.log("   Expected: 100 bytes (80 data + 20 EC for Version 4-L)");
@@ -121,7 +122,8 @@ describe("QRCodeGenerator", () => {
       const encodedData = encodeData(data, options);
       const dataWithEc = implementErrorCorrection(
         encodedData,
-        ErrorCorrectionLevel.L
+        ErrorCorrectionLevel.L,
+        options.version
       );
 
       // Convert to bits
@@ -133,7 +135,7 @@ describe("QRCodeGenerator", () => {
       // Create matrix and function module mask
       const size = 33;
       const matrix = Array.from({ length: size }, () => Array(size).fill(0));
-      const isFunctionModule = createIsFunctionModuleMatrix(size);
+      const isFunctionModule = createIsFunctionModuleMatrix(size, 4);
 
       // Count available cells
       let availableCells = 0;

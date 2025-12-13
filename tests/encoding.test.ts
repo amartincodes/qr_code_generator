@@ -152,7 +152,8 @@ describe("Encoding tests: ", () => {
       const numeric = "12345";
       const binary = encodeCharacterCountToBinary(
         numeric.length,
-        EncodingMode.NUMERIC
+        EncodingMode.NUMERIC,
+        4
       );
       expect(binary).toBe("0000000101"); // 10 bits for length 5
     });
@@ -160,7 +161,8 @@ describe("Encoding tests: ", () => {
       const alphanumeric = "HELLO";
       const binary = encodeCharacterCountToBinary(
         alphanumeric.length,
-        EncodingMode.ALPHANUMERIC
+        EncodingMode.ALPHANUMERIC,
+        4
       );
       expect(binary).toBe("000000101"); // 9 bits for length 5
     });
@@ -168,7 +170,8 @@ describe("Encoding tests: ", () => {
       const byteData = "Hello, World! ñ ü é";
       const binary = encodeCharacterCountToBinary(
         byteData.length,
-        EncodingMode.BYTE
+        EncodingMode.BYTE,
+        4
       );
       expect(binary).toBe("00010011"); // 8 bits for length 18
     });
@@ -176,7 +179,8 @@ describe("Encoding tests: ", () => {
       const kanjiData = "漢字テスト";
       const binary = encodeCharacterCountToBinary(
         kanjiData.length,
-        EncodingMode.KANJI
+        EncodingMode.KANJI,
+        4
       );
       expect(binary).toBe("00000101"); // 8 bits for length 5
     });
@@ -186,7 +190,7 @@ describe("Encoding tests: ", () => {
     it("should pad encoded data to fit the required length for L correction level", () => {
       const binaryString = "0001000000101000011110110111001000110000101010000"; // Example encoded data
       const errorCorrectionLevel = ErrorCorrectionLevel.L;
-      const paddedData = padBinaryString(binaryString, errorCorrectionLevel);
+      const paddedData = padBinaryString(binaryString, errorCorrectionLevel, 4);
 
       const expectedLength =
         NumberOfDataCodewordsLvl4[errorCorrectionLevel] * 8;
@@ -195,7 +199,7 @@ describe("Encoding tests: ", () => {
     it("should pad encoded data to fit the required length for M correction level", () => {
       const binaryString = "0001000000101000011110110111001000110000101010000"; // Example encoded data
       const errorCorrectionLevel = ErrorCorrectionLevel.M;
-      const paddedData = padBinaryString(binaryString, errorCorrectionLevel);
+      const paddedData = padBinaryString(binaryString, errorCorrectionLevel, 4);
       const expectedLength =
         NumberOfDataCodewordsLvl4[errorCorrectionLevel] * 8;
       expect(paddedData.length).toBe(expectedLength);
@@ -203,7 +207,7 @@ describe("Encoding tests: ", () => {
     it("should pad encoded data to fit the required length for Q correction level", () => {
       const binaryString = "0001000000101000011110110111001000110000101010000"; // Example encoded data
       const errorCorrectionLevel = ErrorCorrectionLevel.Q;
-      const paddedData = padBinaryString(binaryString, errorCorrectionLevel);
+      const paddedData = padBinaryString(binaryString, errorCorrectionLevel, 4);
 
       const expectedLength =
         NumberOfDataCodewordsLvl4[errorCorrectionLevel] * 8;
@@ -212,7 +216,7 @@ describe("Encoding tests: ", () => {
     it("should pad encoded data to fit the required length for H correction level", () => {
       const binaryString = "0001000000101000011110110111001000110000101010000"; // Example encoded data
       const errorCorrectionLevel = ErrorCorrectionLevel.H;
-      const paddedData = padBinaryString(binaryString, errorCorrectionLevel);
+      const paddedData = padBinaryString(binaryString, errorCorrectionLevel, 4);
 
       const expectedLength =
         NumberOfDataCodewordsLvl4[errorCorrectionLevel] * 8;
@@ -239,7 +243,8 @@ describe("Encoding tests: ", () => {
 
       const expectedPaddedBinary = padBinaryString(
         expectedBinary,
-        options.errorCorrectionLevel
+        options.errorCorrectionLevel,
+        4
       );
 
       const expectedUint8Array = new Uint8Array(
@@ -263,7 +268,8 @@ describe("Encoding tests: ", () => {
       const expectedBinary = modeIndicator + characterCountIndicator + dataBits;
       const expectedPaddedBinary = padBinaryString(
         expectedBinary,
-        options.errorCorrectionLevel
+        options.errorCorrectionLevel,
+        4
       );
       const expectedUint8Array = new Uint8Array(
         expectedPaddedBinary.match(/.{1,8}/g)!.map((byte) => parseInt(byte, 2))
@@ -286,7 +292,8 @@ describe("Encoding tests: ", () => {
       const expectedBinary = modeIndicator + characterCountIndicator + dataBits;
       const expectedPaddedBinary = padBinaryString(
         expectedBinary,
-        options.errorCorrectionLevel
+        options.errorCorrectionLevel,
+        4
       );
       const expectedUint8Array = new Uint8Array(
         expectedPaddedBinary.match(/.{1,8}/g)!.map((byte) => parseInt(byte, 2))

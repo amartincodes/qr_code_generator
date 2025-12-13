@@ -24,10 +24,11 @@ describe("Masking tests: ", () => {
       const encodedData = encodeData(data, options);
       const finalData = implementErrorCorrection(
         encodedData,
-        options.errorCorrectionLevel
+        options.errorCorrectionLevel,
+        options.version
       );
       const matrix = createInitialMatrix(finalData, options);
-      const isFunctionModule = createIsFunctionModuleMatrix(matrix.length);
+      const isFunctionModule = createIsFunctionModuleMatrix(matrix.length, 4);
       const maskedMatrix = applyDataMask(matrix, 0, isFunctionModule);
 
       // The masked matrix should have the same dimensions as the original matrix
@@ -230,10 +231,11 @@ describe("Masking tests: ", () => {
       const encodedData = encodeData(data, options);
       const finalData = implementErrorCorrection(
         encodedData,
-        options.errorCorrectionLevel
+        options.errorCorrectionLevel,
+        options.version
       );
       const matrix = createInitialMatrix(finalData, options);
-      const isFunctionModule = createIsFunctionModuleMatrix(matrix.length);
+      const isFunctionModule = createIsFunctionModuleMatrix(matrix.length, 4);
 
       const bestMask = selectBestMaskPattern(matrix, isFunctionModule);
 

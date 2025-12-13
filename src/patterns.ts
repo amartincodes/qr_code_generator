@@ -37,6 +37,53 @@ export const VERSION_INFO: { [version: number]: number } = {
   40: 0x27541
 };
 
+// Alignment pattern center module positions for each QR code version
+// Version 1 has no alignment patterns. Versions 2-40 have varying numbers.
+// These coordinates are used as BOTH row and column positions (grid intersections)
+export const ALIGNMENT_PATTERN_POSITIONS: number[][] = [
+  [],                                    // Version 0 (placeholder)
+  [],                                    // Version 1: no alignment patterns
+  [6, 18],                              // Version 2
+  [6, 22],                              // Version 3
+  [6, 26],                              // Version 4
+  [6, 30],                              // Version 5
+  [6, 34],                              // Version 6
+  [6, 22, 38],                          // Version 7
+  [6, 24, 42],                          // Version 8
+  [6, 26, 46],                          // Version 9
+  [6, 28, 50],                          // Version 10
+  [6, 30, 54],                          // Version 11
+  [6, 32, 58],                          // Version 12
+  [6, 34, 62],                          // Version 13
+  [6, 26, 46, 66],                      // Version 14
+  [6, 26, 48, 70],                      // Version 15
+  [6, 26, 50, 74],                      // Version 16
+  [6, 30, 54, 78],                      // Version 17
+  [6, 30, 56, 82],                      // Version 18
+  [6, 30, 58, 86],                      // Version 19
+  [6, 34, 62, 90],                      // Version 20
+  [6, 28, 50, 72, 94],                  // Version 21
+  [6, 26, 50, 74, 98],                  // Version 22
+  [6, 30, 54, 78, 102],                 // Version 23
+  [6, 28, 54, 80, 106],                 // Version 24
+  [6, 32, 58, 84, 110],                 // Version 25
+  [6, 30, 58, 86, 114],                 // Version 26
+  [6, 34, 62, 90, 118],                 // Version 27
+  [6, 26, 50, 74, 98, 122],             // Version 28
+  [6, 30, 54, 78, 102, 126],            // Version 29
+  [6, 26, 52, 78, 104, 130],            // Version 30
+  [6, 30, 56, 82, 108, 134],            // Version 31
+  [6, 34, 60, 86, 112, 138],            // Version 32
+  [6, 30, 58, 86, 114, 142],            // Version 33
+  [6, 34, 62, 90, 118, 146],            // Version 34
+  [6, 30, 54, 78, 102, 126, 150],       // Version 35
+  [6, 24, 50, 76, 102, 128, 154],       // Version 36
+  [6, 28, 54, 80, 106, 132, 158],       // Version 37
+  [6, 32, 58, 84, 110, 136, 162],       // Version 38
+  [6, 26, 54, 82, 110, 138, 166],       // Version 39
+  [6, 30, 58, 86, 114, 142, 170]        // Version 40
+];
+
 function placeFinderPattern(matrix: number[][], row: number, col: number) {
   // Finder pattern (7x7)
   // TODO: Generalise for other versions
@@ -78,16 +125,12 @@ function placeTimingPatterns(matrix: number[][], size: number): number[][] {
   return matrix;
 }
 
-function placeAlignmentPattern(matrix: number[][]): number[][] {
-  // add alignment patterns
-  // For version 4, alignment pattern at (26,26)
-  // TODO: Generalise for other versions
-  const alignRow = 26;
-  const alignCol = 26;
+// Helper function to place a single 5x5 alignment pattern centered at (row, col)
+function placeAlignmentPatternAt(matrix: number[][], row: number, col: number): void {
   for (let i = -2; i <= 2; i++) {
     for (let j = -2; j <= 2; j++) {
-      const r = alignRow + i;
-      const c = alignCol + j;
+      const r = row + i;
+      const c = col + j;
       if (i === -2 || i === 2 || j === -2 || j === 2 || (i === 0 && j === 0)) {
         matrix[r]![c] = 1; // black border and center
       } else {
@@ -95,6 +138,38 @@ function placeAlignmentPattern(matrix: number[][]): number[][] {
       }
     }
   }
+}
+
+function placeAlignmentPattern(matrix: number[][], version: number): number[][] {
+  // Get alignment pattern positions for this version
+  const positions = ALIGNMENT_PATTERN_POSITIONS[version];
+  if (!positions || positions.length === 0) {
+    return matrix; // Version 1 has no alignment patterns
+  }
+
+  const size = matrix.length;
+
+  // Place patterns at all grid intersections of the position coordinates
+  // Avoid placing where it would overlap with finder patterns (corners)
+  for (const row of positions) {
+    for (const col of positions) {
+      // Check if this position would overlap with finder patterns
+      // Top-left finder: rows 0-8, cols 0-8
+      // Top-right finder: rows 0-8, cols (size-9) to (size-1)
+      // Bottom-left finder: rows (size-9) to (size-1), cols 0-8
+      const overlapsTopLeft = (row <= 8 && col <= 8);
+      const overlapsTopRight = (row <= 8 && col >= size - 9);
+      const overlapsBottomLeft = (row >= size - 9 && col <= 8);
+
+      if (overlapsTopLeft || overlapsTopRight || overlapsBottomLeft) {
+        continue; // Skip this position
+      }
+
+      // Place the 5x5 alignment pattern centered at (row, col)
+      placeAlignmentPatternAt(matrix, row, col);
+    }
+  }
+
   return matrix;
 }
 

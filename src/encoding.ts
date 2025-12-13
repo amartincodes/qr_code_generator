@@ -2,10 +2,10 @@ import Encoding from "encoding-japanese";
 import {
   EncodingMode,
   EncodingModeIndicator,
-  CharacterCountIndicator,
   ErrorCorrectionLevel,
   type QRCodeOptions,
-  NumberOfDataCodewordsLvl4
+  getCharacterCountBits,
+  getDataCapacity
 } from "./types";
 
 function detectBestEncoding(data: string): EncodingMode {
@@ -29,17 +29,19 @@ function encodeModeIndicatorToBinary(encodingMode: EncodingMode): string {
 
 function encodeCharacterCountToBinary(
   dataLength: number,
-  encodingMode: EncodingMode
+  encodingMode: EncodingMode,
+  version: number
 ): string {
-  const charCountIndicatorBits = CharacterCountIndicator[encodingMode];
+  const charCountIndicatorBits = getCharacterCountBits(encodingMode, version);
   return dataLength.toString(2).padStart(charCountIndicatorBits, "0");
 }
 
 function padBinaryString(
   binary: string,
-  errorCorrectionLevel: ErrorCorrectionLevel
+  errorCorrectionLevel: ErrorCorrectionLevel,
+  version: number
 ): string {
-  const capacityBits = NumberOfDataCodewordsLvl4[errorCorrectionLevel] * 8;
+  const capacityBits = getDataCapacity(version, errorCorrectionLevel) * 8;
   if (binary.length > capacityBits) {
     throw new Error(
       "Data exceeds capacity for the selected error correction level."
@@ -157,7 +159,8 @@ function encodeData(data: string, options: QRCodeOptions): Uint8Array {
   // Char count indicator binary
   const charCountBinary = encodeCharacterCountToBinary(
     data.length,
-    encodingMode
+    encodingMode,
+    version
   );
   console.log("Character Count Binary:", charCountBinary);
 
@@ -170,7 +173,11 @@ function encodeData(data: string, options: QRCodeOptions): Uint8Array {
   console.log("mod of final data length:", finalDataBinary.length % 8);
 
   // add padding bits if necessary
-  const paddedBinary = padBinaryString(finalDataBinary, errorCorrectionLevel);
+  const paddedBinary = padBinaryString(
+    finalDataBinary,
+    errorCorrectionLevel,
+    version
+  );
 
   // Convert binary string to byte array
   const byteArrayLength = Math.ceil(paddedBinary.length / 8);

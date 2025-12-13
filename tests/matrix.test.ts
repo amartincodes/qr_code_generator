@@ -1,5 +1,6 @@
 import { EncodingMode } from "../src/types";
 import type { QRCodeOptions } from "../src/types";
+import { ErrorCorrectionLevel } from "../src/types";
 import { implementErrorCorrection } from "../src/errorCorrection";
 import { encodeData } from "../src/encoding";
 import {
@@ -20,7 +21,8 @@ describe("Matrix tests: ", () => {
       const encodedData = encodeData(data, options);
       const finalData = implementErrorCorrection(
         encodedData,
-        options.errorCorrectionLevel
+        options.errorCorrectionLevel,
+        options.version
       );
       const matrix = createInitialMatrix(finalData, options);
 
@@ -39,7 +41,8 @@ describe("Matrix tests: ", () => {
       const encodedData = encodeData(data, options);
       const finalData = implementErrorCorrection(
         encodedData,
-        options.errorCorrectionLevel
+        options.errorCorrectionLevel,
+        options.version
       );
       const matrix = createInitialMatrix(finalData, options);
       const size = matrix.length;
@@ -78,7 +81,8 @@ describe("Matrix tests: ", () => {
       const encodedData = encodeData(data, options);
       const finalData = implementErrorCorrection(
         encodedData,
-        options.errorCorrectionLevel
+        options.errorCorrectionLevel,
+        options.version
       );
       const matrix = createInitialMatrix(finalData, options);
       const size = matrix.length;
@@ -104,7 +108,8 @@ describe("Matrix tests: ", () => {
       const encodedData = encodeData(data, options);
       const finalData = implementErrorCorrection(
         encodedData,
-        options.errorCorrectionLevel
+        options.errorCorrectionLevel,
+        options.version
       );
       const matrix = createInitialMatrix(finalData, options);
       const size = matrix.length;
@@ -124,7 +129,8 @@ describe("Matrix tests: ", () => {
       const encodedData = encodeData(data, options);
       const finalData = implementErrorCorrection(
         encodedData,
-        options.errorCorrectionLevel
+        options.errorCorrectionLevel,
+        options.version
       );
       const matrix = createInitialMatrix(finalData, options);
 
@@ -151,7 +157,8 @@ describe("Matrix tests: ", () => {
       const encodedData = encodeData(data, options);
       const finalData = implementErrorCorrection(
         encodedData,
-        options.errorCorrectionLevel
+        options.errorCorrectionLevel,
+        options.version
       );
       const matrix = createInitialMatrix(finalData, options);
 
@@ -166,7 +173,7 @@ describe("Matrix tests: ", () => {
   describe("createIsFunctionModuleMatrix", () => {
     it("should create matrix of correct size", () => {
       const size = 33;
-      const matrix = createIsFunctionModuleMatrix(size);
+      const matrix = createIsFunctionModuleMatrix(size, 4);
 
       expect(matrix.length).toBe(size);
       expect(matrix[0]!.length).toBe(size);
@@ -174,7 +181,7 @@ describe("Matrix tests: ", () => {
 
     it("should mark finder patterns and separators as function modules", () => {
       const size = 33;
-      const matrix = createIsFunctionModuleMatrix(size);
+      const matrix = createIsFunctionModuleMatrix(size, 4);
 
       // Top-left 8x8 area (finder + separator)
       for (let r = 0; r < 8; r++) {
@@ -200,7 +207,7 @@ describe("Matrix tests: ", () => {
 
     it("should mark timing patterns as function modules", () => {
       const size = 33;
-      const matrix = createIsFunctionModuleMatrix(size);
+      const matrix = createIsFunctionModuleMatrix(size, 4);
 
       // Row 6 and column 6 should all be function modules
       for (let i = 0; i < size; i++) {
@@ -211,7 +218,7 @@ describe("Matrix tests: ", () => {
 
     it("should mark alignment pattern as function modules", () => {
       const size = 33;
-      const matrix = createIsFunctionModuleMatrix(size);
+      const matrix = createIsFunctionModuleMatrix(size, 4);
 
       // Version 4 alignment pattern at (26, 26), 5x5 area
       for (let r = 24; r <= 28; r++) {
@@ -223,7 +230,7 @@ describe("Matrix tests: ", () => {
 
     it("should mark format information areas as function modules", () => {
       const size = 33;
-      const matrix = createIsFunctionModuleMatrix(size);
+      const matrix = createIsFunctionModuleMatrix(size, 4);
 
       // Top-left format info (row 8, cols 0-8 and rows 0-8, col 8)
       for (let i = 0; i <= 8; i++) {
@@ -244,7 +251,7 @@ describe("Matrix tests: ", () => {
 
     it("should not mark data areas as function modules", () => {
       const size = 33;
-      const matrix = createIsFunctionModuleMatrix(size);
+      const matrix = createIsFunctionModuleMatrix(size, 4);
 
       // Check some data region cells (bottom-right area, away from patterns)
       expect(matrix[20]![20]).toBe(false);
@@ -256,7 +263,12 @@ describe("Matrix tests: ", () => {
   describe("createQrCodeMatrix", () => {
     it("should create a complete QR code matrix", () => {
       const data = "HELLO";
-      const matrix = createQrCodeMatrix(data, EncodingMode.ALPHANUMERIC, "L");
+      const matrix = createQrCodeMatrix(
+        data,
+        EncodingMode.ALPHANUMERIC,
+        ErrorCorrectionLevel.L,
+        4
+      );
 
       // Version 4 (33x33) + quiet zone (4 on each side) = 41x41
       expect(matrix.length).toBe(41);
@@ -265,7 +277,12 @@ describe("Matrix tests: ", () => {
 
     it("should have quiet zone of all zeros", () => {
       const data = "12345";
-      const matrix = createQrCodeMatrix(data, EncodingMode.NUMERIC, "L");
+      const matrix = createQrCodeMatrix(
+        data,
+        EncodingMode.NUMERIC,
+        ErrorCorrectionLevel.L,
+        4
+      );
 
       // Check quiet zone (first 4 rows/cols and last 4 rows/cols)
       for (let i = 0; i < matrix.length; i++) {
@@ -282,12 +299,12 @@ describe("Matrix tests: ", () => {
       const matrix1 = createQrCodeMatrix(
         "HELLO",
         EncodingMode.ALPHANUMERIC,
-        "L"
+        ErrorCorrectionLevel.L
       );
       const matrix2 = createQrCodeMatrix(
         "WORLD",
         EncodingMode.ALPHANUMERIC,
-        "L"
+        ErrorCorrectionLevel.L
       );
 
       // Matrices should differ in data region
@@ -303,7 +320,12 @@ describe("Matrix tests: ", () => {
     });
 
     it("should only contain 0s and 1s", () => {
-      const matrix = createQrCodeMatrix("TEST", EncodingMode.ALPHANUMERIC, "M");
+      const matrix = createQrCodeMatrix(
+        "TEST",
+        EncodingMode.ALPHANUMERIC,
+        ErrorCorrectionLevel.M,
+        4
+      );
 
       for (let r = 0; r < matrix.length; r++) {
         for (let c = 0; c < matrix[r]!.length; c++) {

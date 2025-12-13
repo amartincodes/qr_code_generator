@@ -21,7 +21,8 @@ describe("Error Correction tests", () => {
       const encodedData = encodeData(data, options);
       const finalData = implementErrorCorrection(
         encodedData,
-        options.errorCorrectionLevel
+        options.errorCorrectionLevel,
+        options.version
       );
 
       // final data length should equal error corrected codewords + data codewords
@@ -42,7 +43,8 @@ describe("Error Correction tests", () => {
       const encodedData = encodeData(data, options);
       const finalData = implementErrorCorrection(
         encodedData,
-        options.errorCorrectionLevel
+        options.errorCorrectionLevel,
+        options.version
       );
 
       // final data length should equal error corrected codewords + data codewords
@@ -64,7 +66,8 @@ describe("Error Correction tests", () => {
       const encodedData = encodeData(data, options);
       const finalData = implementErrorCorrection(
         encodedData,
-        options.errorCorrectionLevel
+        options.errorCorrectionLevel,
+        options.version
       );
 
       // final data length should equal error corrected codewords + data codewords
@@ -86,7 +89,8 @@ describe("Error Correction tests", () => {
       const encodedData = encodeData(data, options);
       const finalData = implementErrorCorrection(
         encodedData,
-        options.errorCorrectionLevel
+        options.errorCorrectionLevel,
+        options.version
       );
 
       // final data length should equal error corrected codewords + data codewords
@@ -108,7 +112,8 @@ describe("Error Correction tests", () => {
       const encodedData = encodeData(data, options);
       const finalData = implementErrorCorrection(
         encodedData,
-        options.errorCorrectionLevel
+        options.errorCorrectionLevel,
+        options.version
       );
 
       // final data length should equal error corrected codewords + data codewords
@@ -124,7 +129,7 @@ describe("Error Correction tests", () => {
     it("should throw error when data length doesn't match expected codewords", () => {
       const invalidData = new Uint8Array([1, 2, 3]); // Too short
       expect(() =>
-        implementErrorCorrection(invalidData, ErrorCorrectionLevel.L)
+        implementErrorCorrection(invalidData, ErrorCorrectionLevel.L, 4)
       ).toThrow("Data length must be 80 codewords");
     });
 
@@ -137,7 +142,7 @@ describe("Error Correction tests", () => {
         data[32 + i] = i + 101;
       }
 
-      const result = implementErrorCorrection(data, ErrorCorrectionLevel.M);
+      const result = implementErrorCorrection(data, ErrorCorrectionLevel.M, 4);
 
       // First 64 bytes should be interleaved data: 1,101,2,102,3,103...
       for (let i = 0; i < 32; i++) {
@@ -149,7 +154,7 @@ describe("Error Correction tests", () => {
     it("should correctly interleave EC blocks for M level", () => {
       const data = new Uint8Array(64).fill(0);
 
-      const result = implementErrorCorrection(data, ErrorCorrectionLevel.M);
+      const result = implementErrorCorrection(data, ErrorCorrectionLevel.M, 4);
 
       // Result should have 64 data + 36 EC = 100 codewords
       // (2 blocks * 18 EC codewords per block = 36)
@@ -160,8 +165,16 @@ describe("Error Correction tests", () => {
       const data1 = new Uint8Array(80).fill(1);
       const data2 = new Uint8Array(80).fill(2);
 
-      const result1 = implementErrorCorrection(data1, ErrorCorrectionLevel.L);
-      const result2 = implementErrorCorrection(data2, ErrorCorrectionLevel.L);
+      const result1 = implementErrorCorrection(
+        data1,
+        ErrorCorrectionLevel.L,
+        4
+      );
+      const result2 = implementErrorCorrection(
+        data2,
+        ErrorCorrectionLevel.L,
+        4
+      );
 
       // Data portion should differ
       expect(result1[0]).not.toBe(result2[0]);
@@ -176,7 +189,7 @@ describe("Error Correction tests", () => {
         data[i] = i;
       }
 
-      const result = implementErrorCorrection(data, ErrorCorrectionLevel.H);
+      const result = implementErrorCorrection(data, ErrorCorrectionLevel.H, 4);
 
       // 36 data + 64 EC (4 blocks * 16) = 100 codewords
       expect(result.length).toBe(100);
