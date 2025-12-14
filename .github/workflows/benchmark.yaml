@@ -43,6 +43,10 @@ jobs:
         if: ${{ github.event.inputs['save-results'] == 'true' }}
         run: npm run benchmark:save
 
+      - name: Display benchmark results in table format
+        if: ${{ github.event.inputs['save-results'] == 'true' }}
+        run: cat benchmarks/RESULTS.md
+
       - name: Create Pull Request with benchmark results
         if: ${{ github.event.inputs['save-results'] == 'true' }}
         id: create-pr
