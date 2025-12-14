@@ -5,7 +5,7 @@ import {
   EncodingMode,
   EncodingModeIndicator,
   ErrorCorrectionLevel,
-  NumberOfDataCodewordsLvl4
+  type QRCodeOptions
 } from "./types";
 import { detectBestEncoding } from "./encoding";
 import { createQrCodeMatrix } from "./matrix";
@@ -15,15 +15,24 @@ class QRCodeGenerator {
     return data.length > 0 && data.length <= 2953; // Max length for QR Code version 40-L
   }
 
-  generate(data: string): number[][] {
+  generate(data: string, options?: Partial<QRCodeOptions>): number[][] {
     if (!this.validateInput(data)) {
       throw new Error("Invalid input data for QR code generation.");
     }
 
-    const encoding = detectBestEncoding(data);
+    const encoding = options?.encodingMode || detectBestEncoding(data);
+    const errorCorrectionLevel =
+      options?.errorCorrectionLevel || ErrorCorrectionLevel.L;
+    const version = options?.version || 4;
+
     console.log(`Detected encoding mode: ${encoding}`);
 
-    const qrMatrix = createQrCodeMatrix(data, encoding, ErrorCorrectionLevel.L);
+    const qrMatrix = createQrCodeMatrix(
+      data,
+      encoding,
+      errorCorrectionLevel,
+      version
+    );
     console.log("Generated QR Code Matrix:");
     console.table(qrMatrix);
 
@@ -68,6 +77,5 @@ export {
   QRCodeGenerator,
   EncodingMode,
   EncodingModeIndicator,
-  ErrorCorrectionLevel,
-  NumberOfDataCodewordsLvl4
+  ErrorCorrectionLevel
 };

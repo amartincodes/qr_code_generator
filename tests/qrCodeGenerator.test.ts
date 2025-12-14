@@ -202,4 +202,226 @@ describe("QRCodeGenerator", () => {
       expect(quietZoneCorrect).toBe(true);
     });
   });
+
+  describe("Multi-version QR code generation", () => {
+    describe("Version 1 QR codes", () => {
+      it("should generate version 1 QR code with correct size", () => {
+        const generator = new QRCodeGenerator();
+        const options: QRCodeOptions = {
+          encodingMode: EncodingMode.NUMERIC,
+          errorCorrectionLevel: ErrorCorrectionLevel.L,
+          version: 1
+        };
+        const matrix = generator.generate("12345", options);
+
+        // Version 1: 21x21 + 8 for quiet zone = 29x29
+        expect(matrix.length).toBe(29);
+        expect(matrix[0]?.length).toBe(29);
+      });
+
+      it("should generate version 1 QR code for alphanumeric", () => {
+        const generator = new QRCodeGenerator();
+        const options: QRCodeOptions = {
+          encodingMode: EncodingMode.ALPHANUMERIC,
+          errorCorrectionLevel: ErrorCorrectionLevel.M,
+          version: 1
+        };
+        const matrix = generator.generate("AB", options);
+
+        expect(matrix.length).toBe(29);
+        expect(matrix[0]?.length).toBe(29);
+      });
+    });
+
+    describe("Version 2 QR codes", () => {
+      it("should generate version 2 QR code with correct size", () => {
+        const generator = new QRCodeGenerator();
+        const options: QRCodeOptions = {
+          encodingMode: EncodingMode.BYTE,
+          errorCorrectionLevel: ErrorCorrectionLevel.Q,
+          version: 2
+        };
+        const matrix = generator.generate("test", options);
+
+        // Version 2: 25x25 + 8 for quiet zone = 33x33
+        expect(matrix.length).toBe(33);
+        expect(matrix[0]?.length).toBe(33);
+      });
+    });
+
+    describe("Version 7 QR codes", () => {
+      it("should generate version 7 QR code with correct size", () => {
+        const generator = new QRCodeGenerator();
+        const options: QRCodeOptions = {
+          encodingMode: EncodingMode.NUMERIC,
+          errorCorrectionLevel: ErrorCorrectionLevel.H,
+          version: 7
+        };
+        const matrix = generator.generate("1234567890", options);
+
+        // Version 7: 45x45 + 8 for quiet zone = 53x53
+        expect(matrix.length).toBe(53);
+        expect(matrix[0]?.length).toBe(53);
+      });
+    });
+
+    describe("Version 10 QR codes", () => {
+      it("should generate version 10 QR code with correct size", () => {
+        const generator = new QRCodeGenerator();
+        const options: QRCodeOptions = {
+          encodingMode: EncodingMode.BYTE,
+          errorCorrectionLevel: ErrorCorrectionLevel.L,
+          version: 10
+        };
+        const matrix = generator.generate("HelloWorld", options);
+
+        // Version 10: 57x57 + 8 for quiet zone = 65x65
+        expect(matrix.length).toBe(65);
+        expect(matrix[0]?.length).toBe(65);
+      });
+    });
+
+    describe("Version 15 QR codes", () => {
+      it("should generate version 15 QR code with correct size", () => {
+        const generator = new QRCodeGenerator();
+        const options: QRCodeOptions = {
+          encodingMode: EncodingMode.ALPHANUMERIC,
+          errorCorrectionLevel: ErrorCorrectionLevel.M,
+          version: 15
+        };
+        const matrix = generator.generate("HELLO WORLD", options);
+
+        // Version 15: 77x77 + 8 for quiet zone = 85x85
+        expect(matrix.length).toBe(85);
+        expect(matrix[0]?.length).toBe(85);
+      });
+    });
+
+    describe("Version 20 QR codes", () => {
+      it("should generate version 20 QR code with correct size", () => {
+        const generator = new QRCodeGenerator();
+        const options: QRCodeOptions = {
+          encodingMode: EncodingMode.BYTE,
+          errorCorrectionLevel: ErrorCorrectionLevel.Q,
+          version: 20
+        };
+        const matrix = generator.generate("Test message", options);
+
+        // Version 20: 97x97 + 8 for quiet zone = 105x105
+        expect(matrix.length).toBe(105);
+        expect(matrix[0]?.length).toBe(105);
+      });
+    });
+
+    describe("Version 27 QR codes", () => {
+      it("should generate version 27 QR code with correct size", () => {
+        const generator = new QRCodeGenerator();
+        const options: QRCodeOptions = {
+          encodingMode: EncodingMode.NUMERIC,
+          errorCorrectionLevel: ErrorCorrectionLevel.L,
+          version: 27
+        };
+        const matrix = generator.generate("12345", options);
+
+        // Version 27: 125x125 + 8 for quiet zone = 133x133
+        expect(matrix.length).toBe(133);
+        expect(matrix[0]?.length).toBe(133);
+      });
+    });
+
+    describe("Version 30 QR codes", () => {
+      it("should generate version 30 QR code with correct size", () => {
+        const generator = new QRCodeGenerator();
+        const options: QRCodeOptions = {
+          encodingMode: EncodingMode.BYTE,
+          errorCorrectionLevel: ErrorCorrectionLevel.H,
+          version: 30
+        };
+        const matrix = generator.generate("DATA", options);
+
+        // Version 30: 137x137 + 8 for quiet zone = 145x145
+        expect(matrix.length).toBe(145);
+        expect(matrix[0]?.length).toBe(145);
+      });
+    });
+
+    describe("Version 40 QR codes (maximum)", () => {
+      it("should generate version 40 QR code with correct size", () => {
+        const generator = new QRCodeGenerator();
+        const options: QRCodeOptions = {
+          encodingMode: EncodingMode.NUMERIC,
+          errorCorrectionLevel: ErrorCorrectionLevel.L,
+          version: 40
+        };
+        const matrix = generator.generate("123456", options);
+
+        // Version 40: 177x177 + 8 for quiet zone = 185x185
+        expect(matrix.length).toBe(185);
+        expect(matrix[0]?.length).toBe(185);
+      });
+
+      it("should generate version 40 QR code for byte mode", () => {
+        const generator = new QRCodeGenerator();
+        const options: QRCodeOptions = {
+          encodingMode: EncodingMode.BYTE,
+          errorCorrectionLevel: ErrorCorrectionLevel.M,
+          version: 40
+        };
+        const matrix = generator.generate("QR Code Test", options);
+
+        expect(matrix.length).toBe(185);
+        expect(matrix[0]?.length).toBe(185);
+      });
+    });
+
+    describe("Quiet zone verification across versions", () => {
+      it("should have proper quiet zone for version 1", () => {
+        const generator = new QRCodeGenerator();
+        const matrix = generator.generate("123", {
+          encodingMode: EncodingMode.NUMERIC,
+          errorCorrectionLevel: ErrorCorrectionLevel.L,
+          version: 1
+        });
+
+        // Check quiet zone (first 4 rows should be all 0s)
+        for (let r = 0; r < 4; r++) {
+          for (let c = 0; c < matrix.length; c++) {
+            expect(matrix[r]![c]).toBe(0);
+          }
+        }
+      });
+
+      it("should have proper quiet zone for version 10", () => {
+        const generator = new QRCodeGenerator();
+        const matrix = generator.generate("TEST", {
+          encodingMode: EncodingMode.BYTE,
+          errorCorrectionLevel: ErrorCorrectionLevel.M,
+          version: 10
+        });
+
+        // Check last 4 rows should be all 0s
+        for (let r = matrix.length - 4; r < matrix.length; r++) {
+          for (let c = 0; c < matrix.length; c++) {
+            expect(matrix[r]![c]).toBe(0);
+          }
+        }
+      });
+
+      it("should have proper quiet zone for version 40", () => {
+        const generator = new QRCodeGenerator();
+        const matrix = generator.generate("X", {
+          encodingMode: EncodingMode.BYTE,
+          errorCorrectionLevel: ErrorCorrectionLevel.L,
+          version: 40
+        });
+
+        // Check left quiet zone (first 4 columns should be all 0s)
+        for (let r = 0; r < matrix.length; r++) {
+          for (let c = 0; c < 4; c++) {
+            expect(matrix[r]![c]).toBe(0);
+          }
+        }
+      });
+    });
+  });
 });

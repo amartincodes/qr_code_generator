@@ -49,7 +49,7 @@ describe("Patterns tests: ", () => {
     });
 
     it("should create different encodings for different mask patterns", () => {
-      const formats = [];
+      const formats: string[] = [];
       for (let mask = 0; mask < 8; mask++) {
         formats.push(
           createFormatInformationEncoding(ErrorCorrectionLevel.L, mask)

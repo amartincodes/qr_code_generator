@@ -372,4 +372,171 @@ describe("Encoding tests: ", () => {
       expect(Array.from(ec1)).not.toEqual(Array.from(ec2));
     });
   });
+
+  describe("Multi-version encoding tests", () => {
+    describe("Version 1 encoding", () => {
+      it("should encode numeric data for version 1", () => {
+        const data = "12345";
+        const options = {
+          encodingMode: EncodingMode.NUMERIC,
+          errorCorrectionLevel: ErrorCorrectionLevel.L,
+          version: 1
+        } as QRCodeOptions;
+        const encoded = encodeData(data, options);
+
+        expect(encoded.length).toBe(19); // Version 1-L capacity
+      });
+
+      it("should encode alphanumeric data for version 1", () => {
+        const data = "AB";
+        const options = {
+          encodingMode: EncodingMode.ALPHANUMERIC,
+          errorCorrectionLevel: ErrorCorrectionLevel.M,
+          version: 1
+        } as QRCodeOptions;
+        const encoded = encodeData(data, options);
+
+        expect(encoded.length).toBe(16); // Version 1-M capacity
+      });
+    });
+
+    describe("Version 2 encoding", () => {
+      it("should encode byte data for version 2", () => {
+        const data = "test";
+        const options = {
+          encodingMode: EncodingMode.BYTE,
+          errorCorrectionLevel: ErrorCorrectionLevel.Q,
+          version: 2
+        } as QRCodeOptions;
+        const encoded = encodeData(data, options);
+
+        expect(encoded.length).toBe(22); // Version 2-Q capacity
+      });
+    });
+
+    describe("Version 7 encoding", () => {
+      it("should encode numeric data for version 7", () => {
+        const data = "1234567890";
+        const options = {
+          encodingMode: EncodingMode.NUMERIC,
+          errorCorrectionLevel: ErrorCorrectionLevel.H,
+          version: 7
+        } as QRCodeOptions;
+        const encoded = encodeData(data, options);
+
+        expect(encoded.length).toBe(66); // Version 7-H capacity
+      });
+    });
+
+    describe("Version 10 encoding (character count boundary)", () => {
+      it("should use 12-bit character count for numeric in version 10", () => {
+        const data = "123456789012";
+        const options = {
+          encodingMode: EncodingMode.NUMERIC,
+          errorCorrectionLevel: ErrorCorrectionLevel.L,
+          version: 10
+        } as QRCodeOptions;
+        const encoded = encodeData(data, options);
+
+        // Version 10-26 uses 12 bits for numeric character count
+        expect(encoded.length).toBe(274); // Version 10-L capacity
+      });
+
+      it("should use 16-bit character count for byte in version 10", () => {
+        const data = "HelloWorld";
+        const options = {
+          encodingMode: EncodingMode.BYTE,
+          errorCorrectionLevel: ErrorCorrectionLevel.M,
+          version: 10
+        } as QRCodeOptions;
+        const encoded = encodeData(data, options);
+
+        // Version 10-26 uses 16 bits for byte character count
+        expect(encoded.length).toBe(216); // Version 10-M capacity
+      });
+    });
+
+    describe("Version 15 encoding", () => {
+      it("should encode alphanumeric data for version 15", () => {
+        const data = "HELLO WORLD 12345";
+        const options = {
+          encodingMode: EncodingMode.ALPHANUMERIC,
+          errorCorrectionLevel: ErrorCorrectionLevel.Q,
+          version: 15
+        } as QRCodeOptions;
+        const encoded = encodeData(data, options);
+
+        expect(encoded.length).toBe(295); // Version 15-Q capacity
+      });
+    });
+
+    describe("Version 20 encoding", () => {
+      it("should encode byte data for version 20", () => {
+        const data = "This is a test message for QR code version 20";
+        const options = {
+          encodingMode: EncodingMode.BYTE,
+          errorCorrectionLevel: ErrorCorrectionLevel.M,
+          version: 20
+        } as QRCodeOptions;
+        const encoded = encodeData(data, options);
+
+        expect(encoded.length).toBe(669); // Version 20-M capacity
+      });
+    });
+
+    describe("Version 27 encoding (character count boundary)", () => {
+      it("should use 14-bit character count for numeric in version 27", () => {
+        const data = "12345678901234567890";
+        const options = {
+          encodingMode: EncodingMode.NUMERIC,
+          errorCorrectionLevel: ErrorCorrectionLevel.L,
+          version: 27
+        } as QRCodeOptions;
+        const encoded = encodeData(data, options);
+
+        // Version 27-40 uses 14 bits for numeric character count
+        expect(encoded.length).toBe(1468); // Version 27-L capacity
+      });
+    });
+
+    describe("Version 30 encoding", () => {
+      it("should encode byte data for version 30", () => {
+        const data = "A".repeat(50);
+        const options = {
+          encodingMode: EncodingMode.BYTE,
+          errorCorrectionLevel: ErrorCorrectionLevel.H,
+          version: 30
+        } as QRCodeOptions;
+        const encoded = encodeData(data, options);
+
+        expect(encoded.length).toBe(745); // Version 30-H capacity
+      });
+    });
+
+    describe("Version 40 encoding (maximum)", () => {
+      it("should encode numeric data for version 40", () => {
+        const data = "1".repeat(100);
+        const options = {
+          encodingMode: EncodingMode.NUMERIC,
+          errorCorrectionLevel: ErrorCorrectionLevel.L,
+          version: 40
+        } as QRCodeOptions;
+        const encoded = encodeData(data, options);
+
+        expect(encoded.length).toBe(2956); // Version 40-L capacity
+      });
+
+      it("should encode byte data for version 40", () => {
+        const data = "X".repeat(200);
+        const options = {
+          encodingMode: EncodingMode.BYTE,
+          errorCorrectionLevel: ErrorCorrectionLevel.M,
+          version: 40
+        } as QRCodeOptions;
+        const encoded = encodeData(data, options);
+
+        expect(encoded.length).toBe(2334); // Version 40-M capacity
+      });
+    });
+  });
 });
