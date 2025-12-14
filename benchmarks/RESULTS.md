@@ -4,38 +4,38 @@ This file tracks performance benchmark results over time to monitor performance 
 
 ## Latest Results
 
-### Benchmark Run - 12/14/2025, 3:24:16 PM
+### Benchmark Run - 12/14/2025, 4:07:00 PM
 
 **System Information:**
-- Node.js: v25.1.0
-- Platform: linux 6.17.8-arch1-1
+- Node.js: v20.19.6
+- Platform: linux 6.11.0-1018-azure
 - Architecture: x64
-- CPU: 16x AMD Ryzen 7 2700X Eight-Core Processor
-- Memory: 15.54 GB
+- CPU: 4x AMD EPYC 7763 64-Core Processor
+- Memory: 15.62 GB
 
 **Results:**
 
 | Benchmark | Avg Time (ms) | Min (ms) | Max (ms) | Ops/sec | Iterations |
 |-----------|---------------|----------|----------|---------|------------|
-| Version 1 - 3 chars | 2.93 | 2.45 | 4.79 | 341.15 | 50 |
-| Version 5 - 10 chars | 6.42 | 6.10 | 8.22 | 155.72 | 50 |
-| Version 10 - 15 chars | 14.09 | 13.51 | 16.99 | 70.95 | 50 |
-| Version 20 - 37 chars | 38.29 | 37.15 | 45.76 | 26.12 | 50 |
-| Version 30 - 50 chars | 74.65 | 73.57 | 81.58 | 13.40 | 50 |
-| Version 40 - 100 chars | 126.21 | 122.93 | 135.47 | 7.92 | 50 |
-| NUMERIC encoding | 13.69 | 13.44 | 14.11 | 73.03 | 50 |
-| ALPHANUMERIC encoding | 13.67 | 13.38 | 14.14 | 73.15 | 50 |
-| BYTE encoding | 13.78 | 13.41 | 14.29 | 72.58 | 50 |
-| EC Level L | 13.77 | 13.40 | 15.10 | 72.63 | 50 |
-| EC Level M | 13.78 | 13.43 | 14.40 | 72.58 | 50 |
-| EC Level Q | 13.73 | 13.48 | 14.18 | 72.86 | 50 |
-| EC Level H | 13.79 | 13.47 | 14.15 | 72.51 | 50 |
-| Generate 10 QR codes (Version 4) | 50.97 | 50.42 | 51.37 | 19.62 | 5 |
-| Generate 50 QR codes (Version 4) | 251.95 | 248.98 | 256.46 | 3.97 | 5 |
-| Generate 100 QR codes (Version 4) | 497.78 | 495.16 | 505.40 | 2.01 | 5 |
-| 100 chars - Version 20 | 37.27 | 36.78 | 37.58 | 26.83 | 20 |
-| 500 chars - Version 30 | 74.42 | 73.89 | 76.47 | 13.44 | 20 |
-| 1000 chars - Version 40 | 124.03 | 123.16 | 125.60 | 8.06 | 20 |
+| Version 1 - 3 chars | 3.09 | 2.40 | 5.17 | 324.13 | 50 |
+| Version 5 - 10 chars | 7.44 | 6.22 | 11.87 | 134.35 | 50 |
+| Version 10 - 15 chars | 19.03 | 15.93 | 62.09 | 52.56 | 50 |
+| Version 20 - 37 chars | 47.18 | 44.38 | 66.04 | 21.20 | 50 |
+| Version 30 - 50 chars | 100.92 | 93.59 | 117.62 | 9.91 | 50 |
+| Version 40 - 100 chars | 186.86 | 161.39 | 592.51 | 5.35 | 50 |
+| NUMERIC encoding | 19.28 | 18.42 | 28.19 | 51.87 | 50 |
+| ALPHANUMERIC encoding | 18.54 | 17.83 | 19.23 | 53.95 | 50 |
+| BYTE encoding | 18.58 | 18.00 | 20.33 | 53.81 | 50 |
+| EC Level L | 19.03 | 16.95 | 27.35 | 52.55 | 50 |
+| EC Level M | 17.23 | 16.47 | 18.88 | 58.03 | 50 |
+| EC Level Q | 17.83 | 17.01 | 21.50 | 56.07 | 50 |
+| EC Level H | 17.49 | 16.78 | 21.24 | 57.17 | 50 |
+| Generate 10 QR codes (Version 4) | 61.53 | 59.40 | 64.54 | 16.25 | 5 |
+| Generate 50 QR codes (Version 4) | 342.11 | 320.22 | 353.78 | 2.92 | 5 |
+| Generate 100 QR codes (Version 4) | 670.13 | 651.43 | 694.15 | 1.49 | 5 |
+| 100 chars - Version 20 | 54.68 | 49.02 | 61.23 | 18.29 | 20 |
+| 500 chars - Version 30 | 103.84 | 95.11 | 109.29 | 9.63 | 20 |
+| 1000 chars - Version 40 | 188.83 | 172.06 | 210.01 | 5.30 | 20 |
 
 ---
 
