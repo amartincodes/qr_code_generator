@@ -263,6 +263,87 @@ qr_code_gen/
 └── PERFORMANCE.md          # Performance documentation
 ```
 
+## Publishing to npm
+
+This package is configured for publishing to npm with full TypeScript support.
+
+### Prerequisites
+
+1. Make sure you're logged into npm:
+   ```bash
+   npm login
+   ```
+
+2. Verify your npm account is set correctly:
+   ```bash
+   npm whoami
+   ```
+
+### Publishing Process
+
+The package uses automated checks before publishing:
+
+1. **Update version** in `package.json` (follow [semantic versioning](https://semver.org/)):
+   ```bash
+   # For a patch release (bug fixes)
+   npm version patch
+
+   # For a minor release (new features, backward compatible)
+   npm version minor
+
+   # For a major release (breaking changes)
+   npm version major
+   ```
+
+2. **Publish to npm**:
+   ```bash
+   npm publish --access public
+   ```
+
+   The `prepublishOnly` script will automatically:
+   - Clean the dist folder
+   - Build the project (JavaScript + TypeScript definitions)
+   - Run all tests
+   - Fail the publish if tests don't pass
+
+### What Gets Published
+
+The published package includes:
+- `dist/` - Compiled JavaScript files
+- `dist/*.d.ts` - TypeScript type definitions
+- `README.md` - Package documentation
+- `LICENSE` - MIT license file
+- `package.json` - Package metadata
+
+Files **excluded** from the package (via `.npmignore`):
+- Source TypeScript files (`src/`)
+- Tests (`tests/`)
+- Benchmarks (`benchmarks/`)
+- Configuration files
+- GitHub workflows
+
+### Verifying the Package
+
+Before publishing, you can check what will be included:
+
+```bash
+npm pack --dry-run
+```
+
+This shows the files that will be included in the published package without actually creating a tarball.
+
+To create a local tarball for testing:
+
+```bash
+npm pack
+```
+
+Then install it locally in another project:
+
+```bash
+npm install /path/to/amartincodes-qr-code-gen-1.0.0.tgz
+```
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.

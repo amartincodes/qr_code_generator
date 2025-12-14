@@ -1,2 +1,3 @@
 export { QRCodeGenerator } from "./qrCodeGenerator";
-export type { QRCodeOptions, ErrorCorrectionLevel } from "./types";
+export { EncodingMode, ErrorCorrectionLevel } from "./types";
+export type { QRCodeOptions } from "./types";
