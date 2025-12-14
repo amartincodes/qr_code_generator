@@ -2,7 +2,8 @@
 
 A high-performance, spec-compliant QR Code generator for Node.js with both CLI and library interfaces. Supports all QR Code versions (1-40), encoding modes, and error correction levels.
 
-[![Node.js CI](https://github.com/amartincodes/qr_code_gen/actions/workflows/test.yml/badge.svg)](https://github.com/amartincodes/qr_code_gen/actions/workflows/test.yml)
+[![Run Tests](https://github.com/amartincodes/qr_code_generator/actions/workflows/test.yml/badge.svg)](https://github.com/amartincodes/qr_code_generator/actions/workflows/test.yml)
+[![Run Benchmarks](https://github.com/amartincodes/qr_code_generator/actions/workflows/benchmark.yaml/badge.svg)](https://github.com/amartincodes/qr_code_generator/actions/workflows/benchmark.yaml)
 [![npm version](https://badge.fury.io/js/@amartincodes%2Fqr-code-gen.svg)](https://www.npmjs.com/package/@amartincodes/qr-code-gen)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -64,6 +65,7 @@ qr-code-gen "1234567890" --encoding NUMERIC
 ```
 
 **CLI Options:**
+
 - `-o, --output <file>` - Output PNG file path (required)
 - `-v, --version <number>` - QR Code version 1-40 (default: auto-detect)
 - `-e, --error-correction <level>` - Error correction: L, M, Q, H (default: L)
@@ -72,7 +74,11 @@ qr-code-gen "1234567890" --encoding NUMERIC
 ### Library Usage
 
 ```typescript
-import { QRCodeGenerator, EncodingMode, ErrorCorrectionLevel } from '@amartincodes/qr-code-gen';
+import {
+  QRCodeGenerator,
+  EncodingMode,
+  ErrorCorrectionLevel
+} from "@amartincodes/qr-code-gen";
 
 const generator = new QRCodeGenerator();
 
@@ -102,6 +108,7 @@ The main class for generating QR codes.
 Generates a QR code matrix from the input data.
 
 **Parameters:**
+
 - `data` (string): The data to encode in the QR code
 - `options` (optional): Configuration options
   - `version` (1-40): QR Code version, determines size and capacity
@@ -119,8 +126,13 @@ Generates a QR code matrix from the input data.
 **Returns:** A 2D array representing the QR code matrix (including quiet zone)
 
 **Example:**
+
 ```typescript
-import { QRCodeGenerator, EncodingMode, ErrorCorrectionLevel } from '@amartincodes/qr-code-gen';
+import {
+  QRCodeGenerator,
+  EncodingMode,
+  ErrorCorrectionLevel
+} from "@amartincodes/qr-code-gen";
 
 const generator = new QRCodeGenerator();
 
@@ -165,28 +177,31 @@ The QR code generation follows the official ISO/IEC 18004 specification:
 ## QR Code Capacity
 
 | Version | Size    | Numeric | Alphanumeric | Byte  | Kanji |
-|---------|---------|---------|--------------|-------|-------|
+| ------- | ------- | ------- | ------------ | ----- | ----- |
 | 1       | 21×21   | 41      | 25           | 17    | 10    |
 | 10      | 57×57   | 652     | 395          | 271   | 167   |
 | 20      | 97×97   | 1,901   | 1,154        | 792   | 488   |
 | 30      | 137×137 | 3,706   | 2,249        | 1,542 | 952   |
 | 40      | 177×177 | 7,089   | 4,296        | 2,953 | 1,817 |
 
-*Capacities shown are for error correction level L (7%). Higher error correction levels reduce capacity.*
+_Capacities shown are for error correction level L (7%). Higher error correction levels reduce capacity._
 
 ## Performance
 
 This library is optimized for performance. See detailed benchmarks and performance standards in:
+
 - [Performance Documentation](./PERFORMANCE.md) - Standards, optimization tips, and CI integration
 - [Benchmark Results](./benchmarks/RESULTS.md) - Historical benchmark data
 - [Benchmark Suite](./benchmarks/README.md) - Running benchmarks locally
 
 ### Quick Stats (Version 10, Error Correction L)
+
 - **Generation Speed**: ~70 ops/second
 - **Average Time**: ~14ms per QR code
 - **Throughput**: 50+ codes/second for small versions
 
 Run benchmarks yourself:
+
 ```bash
 npm run benchmark        # View results only
 npm run benchmark:save   # Save results to history
@@ -259,6 +274,7 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 5. Open a Pull Request
 
 Please make sure to:
+
 - Update tests as appropriate
 - Run `npm test` to ensure all tests pass
 - Run `npm run benchmark` to check performance impact
