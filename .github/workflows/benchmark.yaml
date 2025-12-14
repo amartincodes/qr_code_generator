@@ -1,0 +1,115 @@
+name: Run Benchmarks
+
+on:
+  workflow_dispatch:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        required: true
+        default: '20.x'
+        options:
+          - '18.x'
+          - '20.x'
+      save-results:
+        description: 'Save benchmark results to file'
+        required: false
+        default: 'false'
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ github.event.inputs['node-version'] }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ github.event.inputs['node-version'] }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run benchmars without saving results
+        if: ${{ github.event.inputs['save-results'] == 'false' }}
+        run: npm run benchmark
+
+      - name: Run benchmarks and save results
+        if: ${{ github.event.inputs['save-results'] == 'true' }}
+        run: npm run benchmark:save
+
+      - name: Create Pull Request with benchmark results
+        if: ${{ github.event.inputs['save-results'] == 'true' }}
+        id: create-pr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            📊 Update benchmark results
+
+            Automated benchmark results from GitHub Actions workflow run.
+
+            Workflow: ${{ github.workflow }}
+            Run ID: ${{ github.run_id }}
+            Triggered by: @${{ github.actor }}
+          branch: benchmarks/results-${{ github.run_id }}
+          delete-branch: true
+          title: '📊 Benchmark Results - ${{ github.run_id }}'
+          body: |
+            ## 📊 Benchmark Results
+
+            This PR contains automated benchmark results from a workflow run.
+
+            ### 📝 Details
+            - **Workflow**: ${{ github.workflow }}
+            - **Run ID**: [`${{ github.run_id }}`](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - **Triggered by**: @${{ github.actor }}
+            - **Node.js version**: ${{ github.event.inputs['node-version'] }}
+            - **Timestamp**: ${{ github.event.repository.updated_at }}
+
+            ### 📈 Results
+
+            The benchmark results have been updated in `benchmarks/RESULTS.md`.
+
+            Please review the results and merge if they look correct.
+
+            ---
+
+            🤖 _This PR was automatically created by the benchmark workflow._
+          labels: |
+            benchmarks
+            automated
+          assignees: ${{ github.actor }}
+
+      - name: Output PR information
+        if: ${{ github.event.inputs['save-results'] == 'true' && steps.create-pr.outputs.pull-request-number }}
+        run: |
+          echo "::notice title=Pull Request Created::✅ Benchmark results saved successfully!"
+          echo "::notice title=PR Link::🔗 Pull Request #${{ steps.create-pr.outputs.pull-request-number }}: ${{ steps.create-pr.outputs.pull-request-url }}"
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ Benchmark results saved successfully!"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "📊 Pull Request: #${{ steps.create-pr.outputs.pull-request-number }}"
+          echo "🔗 URL: ${{ steps.create-pr.outputs.pull-request-url }}"
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      - name: No changes detected
+        if: ${{ github.event.inputs['save-results'] == 'true' && !steps.create-pr.outputs.pull-request-number }}
+        run: |
+          echo "::notice title=No Changes::ℹ️ No changes detected in benchmark results."
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "ℹ️  No changes detected in benchmark results."
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "The benchmark results are identical to the previous run."
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

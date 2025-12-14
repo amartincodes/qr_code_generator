@@ -32,7 +32,11 @@
     "qr-code-gen": "dist/cli.js"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --testPathIgnorePatterns=performance.test.ts",
+    "test:perf": "jest performance.test.ts",
+    "test:all": "jest",
+    "benchmark": "tsx benchmarks/performance.benchmark.ts",
+    "benchmark:save": "tsx benchmarks/performance.benchmark.ts --save",
     "clean": "rm -rf dist",
     "build": "vite build",
     "start": "node dist/index.js"
@@ -50,6 +54,7 @@
     "jest": "^30.2.0",
     "prettier": "^3.6.2",
     "ts-jest": "^29.4.5",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vite": "^7.2.2"
   },
