@@ -7,6 +7,7 @@ This guide walks through the process of publishing this package to the npm regis
 ### 1. Package Configuration ✅
 
 **Verify package.json fields:**
+
 - [x] `name`: `@amartincodes/qr-code-gen` (scoped package)
 - [x] `version`: `1.0.0` (semantic versioning)
 - [x] `description`: Clear, concise description
@@ -54,11 +55,13 @@ npm uninstall -g @amartincodes/qr-code-gen
 ### 4. Version Management
 
 Follow semantic versioning (semver):
+
 - **MAJOR** (1.0.0 → 2.0.0): Breaking changes
 - **MINOR** (1.0.0 → 1.1.0): New features (backward compatible)
 - **PATCH** (1.0.0 → 1.0.1): Bug fixes (backward compatible)
 
 Update version:
+
 ```bash
 # Automatically update version and create git tag
 npm version patch  # 1.0.0 → 1.0.1
@@ -69,6 +72,7 @@ npm version major  # 1.0.0 → 2.0.0
 ### 5. Git Repository
 
 Ensure your code is committed and pushed:
+
 ```bash
 git status
 git add .
@@ -82,6 +86,7 @@ git push --tags
 ### Step 1: Create npm Account
 
 If you don't have an npm account:
+
 1. Go to https://www.npmjs.com/signup
 2. Create an account
 3. Verify your email
@@ -93,12 +98,14 @@ npm login
 ```
 
 Enter your:
+
 - Username
 - Password
 - Email (public)
 - One-time password (if 2FA is enabled)
 
 Verify login:
+
 ```bash
 npm whoami
 ```
@@ -120,6 +127,7 @@ npm publish --dry-run
 ```
 
 This shows:
+
 - Files that will be included
 - Package size
 - Any warnings or errors
@@ -129,7 +137,7 @@ This shows:
 **For scoped packages (like @amartincodes/qr-code-gen):**
 
 ```bash
-# Public package (free)
+#Public package (free)
 npm publish --access public
 
 # Private package (requires paid plan)
@@ -137,6 +145,7 @@ npm publish --access restricted
 ```
 
 **For non-scoped packages:**
+
 ```bash
 npm publish
 ```
@@ -155,6 +164,7 @@ npm publish
 ### Update README Badges
 
 The npm version badge should now work:
+
 ```markdown
 [![npm version](https://badge.fury.io/js/@amartincodes%2Fqr-code-gen.svg)](https://www.npmjs.com/package/@amartincodes/qr-code-gen)
 ```
@@ -166,12 +176,6 @@ The npm version badge should now work:
 3. Title: `v1.0.0 - Initial Release`
 4. Description: Changelog/features
 5. Publish release
-
-### Announce
-
-- Update repository README if needed
-- Share on social media (optional)
-- Add to relevant directories (optional)
 
 ## Updating the Package
 
@@ -194,6 +198,8 @@ npm version patch  # or minor/major
 git push origin master
 git push --tags
 
+# 4.5 update the version in package.json
+
 # 5. Publish
 npm publish --access public
 ```
@@ -201,18 +207,22 @@ npm publish --access public
 ## Troubleshooting
 
 ### Error: Package name already exists
+
 - Change the package name in package.json
 - Or use a scoped package: `@yourusername/package-name`
 
 ### Error: You must verify your email
+
 - Check your email inbox for verification link
 - Resend: https://www.npmjs.com/email-edit
 
 ### Error: You do not have permission to publish
+
 - Make sure you're logged in: `npm whoami`
 - Check package scope matches your username
 
 ### Error: Package.json "main" file doesn't exist
+
 - Run `npm run build` first
 - Check that `dist/index.js` exists
 

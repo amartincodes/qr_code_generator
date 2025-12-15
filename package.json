@@ -1,6 +1,6 @@
 {
   "name": "@amartincodes/qr-code-gen",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "CLI tool and library to generate QR codes in PNG format.",
   "license": "MIT",
   "author": "amartincodes",
