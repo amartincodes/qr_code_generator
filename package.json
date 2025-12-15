@@ -44,7 +44,9 @@
     "benchmark:save": "tsx benchmarks/performance.benchmark.ts --save",
     "clean": "rm -rf dist",
     "build": "npm run clean && vite build",
+    "prepack": "npm run build && npm test",
     "prepublishOnly": "npm run build && npm test",
+    "pre-publish-check": "bash scripts/pre-publish-check.sh",
     "start": "node dist/index.js"
   },
   "devDependencies": {
