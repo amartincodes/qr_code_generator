@@ -4,6 +4,48 @@ This file tracks performance benchmark results over time to monitor performance 
 
 ## Latest Results
 
+### Benchmark Run - 12/15/2025, 9:53:56 PM
+
+**System Information:**
+- Node.js: v25.1.0
+- Platform: linux 6.17.8-arch1-1
+- Architecture: x64
+- CPU: 16x AMD Ryzen 7 2700X Eight-Core Processor
+- Memory: 15.54 GB
+
+**Results:**
+
+| Benchmark | Avg Time (ms) | Min (ms) | Max (ms) | Ops/sec | Iterations |
+|-----------|---------------|----------|----------|---------|------------|
+| Version 1 - 3 chars | 3.20 | 2.42 | 5.16 | 312.43 | 50 |
+| Version 5 - 10 chars | 7.45 | 6.21 | 11.34 | 134.29 | 50 |
+| Version 10 - 15 chars | 14.44 | 13.55 | 17.28 | 69.24 | 50 |
+| Version 20 - 37 chars | 44.12 | 35.41 | 73.80 | 22.66 | 50 |
+| Version 30 - 50 chars | 89.19 | 78.91 | 105.40 | 11.21 | 50 |
+| Version 40 - 100 chars | 152.31 | 139.40 | 171.70 | 6.57 | 50 |
+| NUMERIC encoding | 15.51 | 12.90 | 23.22 | 64.49 | 50 |
+| ALPHANUMERIC encoding | 15.40 | 12.84 | 24.11 | 64.94 | 50 |
+| BYTE encoding | 15.35 | 12.93 | 23.62 | 65.13 | 50 |
+| EC Level L | 15.39 | 12.92 | 23.55 | 64.98 | 50 |
+| EC Level M | 15.44 | 12.82 | 23.41 | 64.76 | 50 |
+| EC Level Q | 15.59 | 12.89 | 23.28 | 64.15 | 50 |
+| EC Level H | 15.64 | 12.88 | 23.63 | 63.94 | 50 |
+| Generate 10 QR codes (Version 4) | 55.55 | 48.00 | 59.75 | 18.00 | 5 |
+| Generate 50 QR codes (Version 4) | 277.62 | 274.23 | 280.03 | 3.60 | 5 |
+| Generate 100 QR codes (Version 4) | 559.08 | 547.13 | 576.14 | 1.79 | 5 |
+| 100 chars - Version 20 | 44.79 | 35.49 | 50.93 | 22.33 | 20 |
+| 500 chars - Version 30 | 90.81 | 81.49 | 103.97 | 11.01 | 20 |
+| 1000 chars - Version 40 | 153.19 | 140.11 | 166.52 | 6.53 | 20 |
+
+---
+
+
+## Historical Results
+
+Results are appended below with newest first.
+
+---
+
 ### Benchmark Run - 12/14/2025, 3:24:16 PM
 
 **System Information:**
@@ -39,9 +81,3 @@ This file tracks performance benchmark results over time to monitor performance 
 
 ---
 
-
-## Historical Results
-
-Results are appended below with newest first.
-
----

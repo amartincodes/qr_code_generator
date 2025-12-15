@@ -84,6 +84,8 @@ jobs:
 
             The benchmark results have been updated in `benchmarks/RESULTS.md`.
 
+            **Note**: If more than 20 historical results exist, older results are automatically archived to `benchmarks/RESULTS.archive.json`.
+
             Please review the results and merge if they look correct.
 
             ---

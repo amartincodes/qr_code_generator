@@ -64,6 +64,32 @@ class PerformanceBenchmark {
     return markdown;
   }
 
+  private countHistoricalResults(historicalSection: string): number {
+    // Count the number of "### Benchmark Run -" entries
+    const matches = historicalSection.match(/### Benchmark Run -/g);
+    return matches ? matches.length : 0;
+  }
+
+  private async archiveOldResults(filePath: string, oldestResults: string): Promise<void> {
+    const archivePath = path.join(path.dirname(filePath), "RESULTS.archive.json");
+
+    let archive: any[] = [];
+    if (fs.existsSync(archivePath)) {
+      const archiveContent = fs.readFileSync(archivePath, "utf-8");
+      archive = JSON.parse(archiveContent);
+    }
+
+    // Parse the oldest results and add to archive
+    const timestamp = new Date().toISOString();
+    archive.push({
+      archivedAt: timestamp,
+      content: oldestResults.trim()
+    });
+
+    fs.writeFileSync(archivePath, JSON.stringify(archive, null, 2), "utf-8");
+    console.log(`✓ Archived old results to ${archivePath}`);
+  }
+
   async saveResults(filePath: string): Promise<void> {
     const systemInfo = this.getSystemInfo();
     const markdown = this.formatResultsAsMarkdown(systemInfo);
@@ -86,14 +112,61 @@ class PerformanceBenchmark {
         const beforeHistorical = parts[0] || "";
         const historicalSection = parts[1] || "";
 
-        // Replace the Latest Results section
+        // Extract the old "Latest Results" section content
         const latestSectionStart = beforeHistorical.indexOf(latestResultsMarker);
         const header = beforeHistorical.substring(0, latestSectionStart + latestResultsMarker.length);
+        const oldLatestResults = beforeHistorical.substring(latestSectionStart + latestResultsMarker.length).trim();
 
-        newContent = header + "\n\n" + markdown + "\n" + historicalResultsMarker + historicalSection;
+        // Prepend old latest results to historical section (insert after the intro text)
+        let updatedHistoricalSection = historicalSection;
+        if (oldLatestResults && oldLatestResults.length > 0) {
+          // Find the end of the intro text in historical section (after "---")
+          const historicalIntroEnd = historicalSection.indexOf("---");
+          if (historicalIntroEnd !== -1) {
+            const beforeIntro = historicalSection.substring(0, historicalIntroEnd + 3);
+            const afterIntro = historicalSection.substring(historicalIntroEnd + 3);
+            updatedHistoricalSection = beforeIntro + "\n\n" + oldLatestResults + "\n" + afterIntro;
+          } else {
+            // If no intro found, just prepend to historical section
+            updatedHistoricalSection = "\n\n" + oldLatestResults + "\n" + historicalSection;
+          }
+        }
+
+        // Count historical results and archive if too many
+        const historicalCount = this.countHistoricalResults(updatedHistoricalSection);
+        const MAX_HISTORICAL_RESULTS = 20;
+
+        if (historicalCount > MAX_HISTORICAL_RESULTS) {
+          // Extract the oldest results (everything after the MAX_HISTORICAL_RESULTS-th entry)
+          const benchmarkRunPattern = /### Benchmark Run -/g;
+          let matches = 0;
+          let splitIndex = -1;
+          let match;
+
+          while ((match = benchmarkRunPattern.exec(updatedHistoricalSection)) !== null) {
+            matches++;
+            if (matches === MAX_HISTORICAL_RESULTS) {
+              splitIndex = match.index;
+              break;
+            }
+          }
+
+          if (splitIndex > 0) {
+            const recentHistorical = updatedHistoricalSection.substring(0, splitIndex);
+            const oldestResults = updatedHistoricalSection.substring(splitIndex);
+
+            // Archive the oldest results
+            await this.archiveOldResults(filePath, oldestResults);
+
+            updatedHistoricalSection = recentHistorical;
+            console.log(`✓ Moved ${historicalCount - MAX_HISTORICAL_RESULTS} oldest results to archive`);
+          }
+        }
+
+        newContent = header + "\n\n" + markdown + "\n" + historicalResultsMarker + updatedHistoricalSection;
       } else {
-        // If file doesn't have the expected structure, append to end
-        newContent = existingContent + "\n" + markdown;
+        // If file doesn't have the expected structure, create it
+        newContent = existingContent + "\n" + latestResultsMarker + "\n\n" + markdown + "\n" + historicalResultsMarker + "\n\nResults are appended below with newest first.\n\n---\n\n";
       }
 
       fs.writeFileSync(filePath, newContent, "utf-8");

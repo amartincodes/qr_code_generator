@@ -18,6 +18,20 @@ This will output detailed performance metrics including:
 - Operations per second
 - Comparative analysis across different configurations
 
+### Save Benchmark Results
+
+To save benchmark results to the history file:
+
+```bash
+npm run benchmark:save
+```
+
+This will:
+- Save the new results to the "Latest Results" section in `RESULTS.md`
+- Move the previous "Latest Results" to the "Historical Results" section
+- Keep up to 20 historical results in `RESULTS.md`
+- Automatically archive older results to `RESULTS.archive.json` when the limit is exceeded
+
 ### Performance Tests (Jest)
 
 Run performance regression tests that ensure the code meets minimum performance standards:
