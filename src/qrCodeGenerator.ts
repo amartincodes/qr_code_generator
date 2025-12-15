@@ -9,6 +9,7 @@ import {
 } from "./types";
 import { detectBestEncoding } from "./encoding";
 import { createQrCodeMatrix } from "./matrix";
+import { logger } from "./logger";
 
 class QRCodeGenerator {
   validateInput(data: string): boolean {
@@ -25,7 +26,7 @@ class QRCodeGenerator {
       options?.errorCorrectionLevel || ErrorCorrectionLevel.L;
     const version = options?.version || 4;
 
-    console.log(`Detected encoding mode: ${encoding}`);
+    logger.debug(`Detected encoding mode: ${encoding}`);
 
     const qrMatrix = createQrCodeMatrix(
       data,
@@ -33,8 +34,8 @@ class QRCodeGenerator {
       errorCorrectionLevel,
       version
     );
-    console.log("Generated QR Code Matrix:");
-    console.table(qrMatrix);
+    logger.debug("Generated QR Code Matrix:");
+    logger.debug(qrMatrix);
 
     return qrMatrix;
   }
@@ -69,7 +70,7 @@ class QRCodeGenerator {
       fs.mkdirSync(dir, { recursive: true });
     }
     png.pack().pipe(fs.createWriteStream(filePathFinal));
-    console.log(`Saving QR code image to ${filePathFinal}...`);
+    logger.info(`Saving QR code image to ${filePathFinal}...`);
   }
 }
 

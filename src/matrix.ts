@@ -14,6 +14,7 @@ import {
 } from "./patterns";
 import { selectBestMaskPattern, applyDataMask } from "./masking";
 import { encodeData } from "./encoding";
+import { logger } from "./logger";
 
 function createInitialMatrix(
   dataWithEc: Uint8Array,
@@ -36,8 +37,6 @@ function createInitialMatrix(
   placeAlignmentPattern(matrix, options.version);
 
   placeTimingPatterns(matrix, size);
-  // console.log("QR Code Matrix with Timing Patterns:");
-  // console.table(matrix);
 
   // reserve format information areas
   for (let i = 0; i < 9; i++) {
@@ -53,8 +52,8 @@ function createInitialMatrix(
 
   placeDarkModule(matrix, size);
 
-  console.log("Final QR Code Matrix with Reserved Areas:");
-  console.table(matrix);
+  logger.debug("Final QR Code Matrix with Reserved Areas:");
+  logger.debug(matrix);
 
   // place data + ec bits
   placeDataBits(
@@ -65,8 +64,8 @@ function createInitialMatrix(
     createIsFunctionModuleMatrix(size, options.version)
   );
 
-  console.log("Final QR Code Matrix with Data Bits:");
-  console.table(matrix);
+  logger.debug("Final QR Code Matrix with Data Bits:");
+  logger.debug(matrix);
 
   return matrix;
 }
@@ -180,13 +179,13 @@ function createQrCodeMatrix(
     errorCorrectionLevel,
     version
   });
-  console.log("Encoded Data Bytes:", encodedData);
+  logger.debug("Encoded Data Bytes:", encodedData);
   const dataWithEc = implementErrorCorrection(
     encodedData,
     errorCorrectionLevel,
     version
   );
-  console.log("Data with Error Correction Bytes:", dataWithEc);
+  logger.debug("Data with Error Correction Bytes:", dataWithEc);
   let qrMatrix = createInitialMatrix(dataWithEc, {
     encodingMode: encoding,
     errorCorrectionLevel,
@@ -198,7 +197,7 @@ function createQrCodeMatrix(
     version
   );
   const bestMask = selectBestMaskPattern(qrMatrix, isFunctionModule);
-  console.log("Best Mask Pattern Selected:", bestMask);
+  logger.debug("Best Mask Pattern Selected:", bestMask);
   qrMatrix = applyDataMask(qrMatrix, bestMask, isFunctionModule);
 
   const formatInfo = createFormatInformationEncoding(
@@ -209,8 +208,8 @@ function createQrCodeMatrix(
 
   qrMatrix = placeQuietZone(qrMatrix, 4);
 
-  console.log("Final QR Code Matrix with Quiet Zone:");
-  console.table(qrMatrix);
+  logger.debug("Final QR Code Matrix with Quiet Zone:");
+  logger.debug(qrMatrix);
 
   return qrMatrix;
 }

@@ -7,6 +7,7 @@ import {
   getCharacterCountBits,
   getDataCapacity
 } from "./types";
+import { logger } from "./logger";
 
 function detectBestEncoding(data: string): EncodingMode {
   // Support for numerical, alphanumeric, byte, and kanji modes can be added here
@@ -67,7 +68,7 @@ function padBinaryString(
     }
   }
   paddedBinary = paddedBinary.substring(0, capacityBits); // ensure exact length
-  console.log(
+  logger.debug(
     "Padded Data Binary:",
     paddedBinary,
     paddedBinary.length,
@@ -156,7 +157,7 @@ function encodeData(data: string, options: QRCodeOptions): Uint8Array {
 
   // Encoding mode indicator binary
   const modeIndicatorBinary = encodeModeIndicatorToBinary(encodingMode);
-  console.log("Mode Indicator Binary:", modeIndicatorBinary);
+  logger.debug("Mode Indicator Binary:", modeIndicatorBinary);
 
   // Char count indicator binary
   const charCountBinary = encodeCharacterCountToBinary(
@@ -164,15 +165,15 @@ function encodeData(data: string, options: QRCodeOptions): Uint8Array {
     encodingMode,
     version
   );
-  console.log("Character Count Binary:", charCountBinary);
+  logger.debug("Character Count Binary:", charCountBinary);
 
   // Encoded data binary
   const encodedData = encodeDataToBinary(data, encodingMode);
-  console.log("Encoded Data Binary:", encodedData);
+  logger.debug("Encoded Data Binary:", encodedData);
 
   // Combine all binaries - mode indicator + char count + data
   const finalDataBinary = modeIndicatorBinary + charCountBinary + encodedData;
-  console.log("mod of final data length:", finalDataBinary.length % 8);
+  logger.debug("mod of final data length:", finalDataBinary.length % 8);
 
   // add padding bits if necessary
   const paddedBinary = padBinaryString(
