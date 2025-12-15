@@ -378,14 +378,3 @@ Please make sure to:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Author
-
-**amartincodes**
-
-- GitHub: [@amartincodes](https://github.com/amartincodes)
-
-## Acknowledgments
-
-- QR Code specification by Denso Wave
-- Inspired by various QR code implementations and the ISO/IEC 18004 standard
