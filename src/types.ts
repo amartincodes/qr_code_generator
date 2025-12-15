@@ -14,14 +14,19 @@ export enum EncodingModeIndicator {
 
 // Character count indicator bit lengths for different version ranges
 // Format: [versions 1-9, versions 10-26, versions 27-40]
-const CHARACTER_COUNT_BITS: { [key in EncodingMode]: [number, number, number] } = {
+const CHARACTER_COUNT_BITS: {
+  [key in EncodingMode]: [number, number, number];
+} = {
   NUMERIC: [10, 12, 14],
   ALPHANUMERIC: [9, 11, 13],
   BYTE: [8, 16, 16],
   KANJI: [8, 10, 12]
 };
 
-export function getCharacterCountBits(mode: EncodingMode, version: number): number {
+export function getCharacterCountBits(
+  mode: EncodingMode,
+  version: number
+): number {
   if (version < 1 || version > 40) {
     throw new Error(`Invalid QR code version: ${version}`);
   }
@@ -45,7 +50,9 @@ export enum ErrorCorrectionLevel {
 }
 
 // Data capacity (in codewords) for all versions and error correction levels
-export const DATA_CAPACITY: { [version: number]: { [level in ErrorCorrectionLevel]: number } } = {
+export const DATA_CAPACITY: {
+  [version: number]: { [level in ErrorCorrectionLevel]: number };
+} = {
   1: { L: 19, M: 16, Q: 13, H: 9 },
   2: { L: 34, M: 28, Q: 22, H: 16 },
   3: { L: 55, M: 44, Q: 34, H: 26 },
@@ -88,7 +95,10 @@ export const DATA_CAPACITY: { [version: number]: { [level in ErrorCorrectionLeve
   40: { L: 2956, M: 2334, Q: 1666, H: 1276 }
 };
 
-export function getDataCapacity(version: number, level: ErrorCorrectionLevel): number {
+export function getDataCapacity(
+  version: number,
+  level: ErrorCorrectionLevel
+): number {
   const capacity = DATA_CAPACITY[version]?.[level];
   if (capacity === undefined) {
     throw new Error(`Invalid version/level: ${version}/${level}`);

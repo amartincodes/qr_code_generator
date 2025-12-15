@@ -35,6 +35,8 @@
     "test": "jest --testPathIgnorePatterns=performance.test.ts",
     "test:perf": "jest performance.test.ts",
     "test:all": "jest",
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "ESLINT_USE_FLAT_CONFIG=false eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "benchmark": "tsx benchmarks/performance.benchmark.ts",
     "benchmark:save": "tsx benchmarks/performance.benchmark.ts --save",
     "clean": "rm -rf dist",

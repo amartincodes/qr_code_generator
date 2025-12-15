@@ -1,4 +1,4 @@
-name: Run Tests
+name: CI
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
 
     strategy:
@@ -30,5 +30,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run linting
+        run: npm run lint
+
       - name: Run tests
         run: npm test
+
+      - name: Build project
+        run: npm run build
+
+      - name: Check build output
+        run: |
+          echo "Checking build artifacts..."
+          ls -lah dist/
+          echo "✅ Build completed successfully!"

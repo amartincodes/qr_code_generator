@@ -76,7 +76,10 @@ function createInitialMatrix(
   return matrix;
 }
 
-function createIsFunctionModuleMatrix(size: number, version: number): boolean[][] {
+function createIsFunctionModuleMatrix(
+  size: number,
+  version: number
+): boolean[][] {
   const matrix: boolean[][] = Array.from({ length: size }, () =>
     Array(size).fill(false)
   );
@@ -113,9 +116,9 @@ function createIsFunctionModuleMatrix(size: number, version: number): boolean[][
     for (const row of positions) {
       for (const col of positions) {
         // Skip if overlaps with finder patterns
-        const overlapsTopLeft = (row <= 8 && col <= 8);
-        const overlapsTopRight = (row <= 8 && col >= size - 9);
-        const overlapsBottomLeft = (row >= size - 9 && col <= 8);
+        const overlapsTopLeft = row <= 8 && col <= 8;
+        const overlapsTopRight = row <= 8 && col >= size - 9;
+        const overlapsBottomLeft = row >= size - 9 && col <= 8;
 
         if (overlapsTopLeft || overlapsTopRight || overlapsBottomLeft) {
           continue;
@@ -195,7 +198,10 @@ function createQrCodeMatrix(
     version
   });
 
-  const isFunctionModule = createIsFunctionModuleMatrix(qrMatrix.length, version);
+  const isFunctionModule = createIsFunctionModuleMatrix(
+    qrMatrix.length,
+    version
+  );
   const bestMask = selectBestMaskPattern(qrMatrix, isFunctionModule);
   console.log("Best Mask Pattern Selected:", bestMask);
   qrMatrix = applyDataMask(qrMatrix, bestMask, isFunctionModule);

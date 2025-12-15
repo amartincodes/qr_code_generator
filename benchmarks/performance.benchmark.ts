@@ -56,7 +56,7 @@ class PerformanceBenchmark {
     markdown += `| Benchmark | Avg Time (ms) | Min (ms) | Max (ms) | Ops/sec | Iterations |\n`;
     markdown += `|-----------|---------------|----------|----------|---------|------------|\n`;
 
-    this.results.forEach(result => {
+    this.results.forEach((result) => {
       markdown += `| ${result.name} | ${result.avgTime.toFixed(2)} | ${result.minTime.toFixed(2)} | ${result.maxTime.toFixed(2)} | ${result.opsPerSecond.toFixed(2)} | ${result.iterations} |\n`;
     });
 
@@ -70,8 +70,14 @@ class PerformanceBenchmark {
     return matches ? matches.length : 0;
   }
 
-  private async archiveOldResults(filePath: string, oldestResults: string): Promise<void> {
-    const archivePath = path.join(path.dirname(filePath), "RESULTS.archive.json");
+  private async archiveOldResults(
+    filePath: string,
+    oldestResults: string
+  ): Promise<void> {
+    const archivePath = path.join(
+      path.dirname(filePath),
+      "RESULTS.archive.json"
+    );
 
     let archive: any[] = [];
     if (fs.existsSync(archivePath)) {
@@ -113,9 +119,15 @@ class PerformanceBenchmark {
         const historicalSection = parts[1] || "";
 
         // Extract the old "Latest Results" section content
-        const latestSectionStart = beforeHistorical.indexOf(latestResultsMarker);
-        const header = beforeHistorical.substring(0, latestSectionStart + latestResultsMarker.length);
-        const oldLatestResults = beforeHistorical.substring(latestSectionStart + latestResultsMarker.length).trim();
+        const latestSectionStart =
+          beforeHistorical.indexOf(latestResultsMarker);
+        const header = beforeHistorical.substring(
+          0,
+          latestSectionStart + latestResultsMarker.length
+        );
+        const oldLatestResults = beforeHistorical
+          .substring(latestSectionStart + latestResultsMarker.length)
+          .trim();
 
         // Prepend old latest results to historical section (insert after the intro text)
         let updatedHistoricalSection = historicalSection;
@@ -123,17 +135,26 @@ class PerformanceBenchmark {
           // Find the end of the intro text in historical section (after "---")
           const historicalIntroEnd = historicalSection.indexOf("---");
           if (historicalIntroEnd !== -1) {
-            const beforeIntro = historicalSection.substring(0, historicalIntroEnd + 3);
-            const afterIntro = historicalSection.substring(historicalIntroEnd + 3);
-            updatedHistoricalSection = beforeIntro + "\n\n" + oldLatestResults + "\n" + afterIntro;
+            const beforeIntro = historicalSection.substring(
+              0,
+              historicalIntroEnd + 3
+            );
+            const afterIntro = historicalSection.substring(
+              historicalIntroEnd + 3
+            );
+            updatedHistoricalSection =
+              beforeIntro + "\n\n" + oldLatestResults + "\n" + afterIntro;
           } else {
             // If no intro found, just prepend to historical section
-            updatedHistoricalSection = "\n\n" + oldLatestResults + "\n" + historicalSection;
+            updatedHistoricalSection =
+              "\n\n" + oldLatestResults + "\n" + historicalSection;
           }
         }
 
         // Count historical results and archive if too many
-        const historicalCount = this.countHistoricalResults(updatedHistoricalSection);
+        const historicalCount = this.countHistoricalResults(
+          updatedHistoricalSection
+        );
         const MAX_HISTORICAL_RESULTS = 20;
 
         if (historicalCount > MAX_HISTORICAL_RESULTS) {
@@ -143,7 +164,10 @@ class PerformanceBenchmark {
           let splitIndex = -1;
           let match;
 
-          while ((match = benchmarkRunPattern.exec(updatedHistoricalSection)) !== null) {
+          while (
+            (match = benchmarkRunPattern.exec(updatedHistoricalSection)) !==
+            null
+          ) {
             matches++;
             if (matches === MAX_HISTORICAL_RESULTS) {
               splitIndex = match.index;
@@ -152,21 +176,41 @@ class PerformanceBenchmark {
           }
 
           if (splitIndex > 0) {
-            const recentHistorical = updatedHistoricalSection.substring(0, splitIndex);
-            const oldestResults = updatedHistoricalSection.substring(splitIndex);
+            const recentHistorical = updatedHistoricalSection.substring(
+              0,
+              splitIndex
+            );
+            const oldestResults =
+              updatedHistoricalSection.substring(splitIndex);
 
             // Archive the oldest results
             await this.archiveOldResults(filePath, oldestResults);
 
             updatedHistoricalSection = recentHistorical;
-            console.log(`✓ Moved ${historicalCount - MAX_HISTORICAL_RESULTS} oldest results to archive`);
+            console.log(
+              `✓ Moved ${historicalCount - MAX_HISTORICAL_RESULTS} oldest results to archive`
+            );
           }
         }
 
-        newContent = header + "\n\n" + markdown + "\n" + historicalResultsMarker + updatedHistoricalSection;
+        newContent =
+          header +
+          "\n\n" +
+          markdown +
+          "\n" +
+          historicalResultsMarker +
+          updatedHistoricalSection;
       } else {
         // If file doesn't have the expected structure, create it
-        newContent = existingContent + "\n" + latestResultsMarker + "\n\n" + markdown + "\n" + historicalResultsMarker + "\n\nResults are appended below with newest first.\n\n---\n\n";
+        newContent =
+          existingContent +
+          "\n" +
+          latestResultsMarker +
+          "\n\n" +
+          markdown +
+          "\n" +
+          historicalResultsMarker +
+          "\n\nResults are appended below with newest first.\n\n---\n\n";
       }
 
       fs.writeFileSync(filePath, newContent, "utf-8");
@@ -232,7 +276,9 @@ class PerformanceBenchmark {
     console.log("BENCHMARK SUMMARY");
     console.log("=".repeat(60));
 
-    const sortedResults = [...this.results].sort((a, b) => a.avgTime - b.avgTime);
+    const sortedResults = [...this.results].sort(
+      (a, b) => a.avgTime - b.avgTime
+    );
 
     console.log("\nRanked by Average Time (fastest first):");
     console.log("-".repeat(60));

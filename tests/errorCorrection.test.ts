@@ -207,7 +207,11 @@ describe("Error Correction tests", () => {
     describe("Version 1 error correction", () => {
       it("should implement error correction for version 1-L", () => {
         const data = new Uint8Array(19).fill(42);
-        const result = implementErrorCorrection(data, ErrorCorrectionLevel.L, 1);
+        const result = implementErrorCorrection(
+          data,
+          ErrorCorrectionLevel.L,
+          1
+        );
 
         // Version 1-L: 1 block, 19 data + 7 EC = 26 total
         expect(result.length).toBe(26);
@@ -215,7 +219,11 @@ describe("Error Correction tests", () => {
 
       it("should implement error correction for version 1-H", () => {
         const data = new Uint8Array(9).fill(42);
-        const result = implementErrorCorrection(data, ErrorCorrectionLevel.H, 1);
+        const result = implementErrorCorrection(
+          data,
+          ErrorCorrectionLevel.H,
+          1
+        );
 
         // Version 1-H: 1 block, 9 data + 17 EC = 26 total
         expect(result.length).toBe(26);
@@ -225,7 +233,11 @@ describe("Error Correction tests", () => {
     describe("Version 2 error correction", () => {
       it("should implement error correction for version 2-M", () => {
         const data = new Uint8Array(28).fill(100);
-        const result = implementErrorCorrection(data, ErrorCorrectionLevel.M, 2);
+        const result = implementErrorCorrection(
+          data,
+          ErrorCorrectionLevel.M,
+          2
+        );
 
         // Version 2-M: 1 block, 28 data + 16 EC = 44 total
         expect(result.length).toBe(44);
@@ -235,7 +247,11 @@ describe("Error Correction tests", () => {
     describe("Version 5 error correction (dual groups)", () => {
       it("should handle version 5-Q with dual block groups", () => {
         const data = new Uint8Array(62).fill(55);
-        const result = implementErrorCorrection(data, ErrorCorrectionLevel.Q, 5);
+        const result = implementErrorCorrection(
+          data,
+          ErrorCorrectionLevel.Q,
+          5
+        );
 
         // Version 5-Q: 2 blocks of 15 + 2 blocks of 16 = 62 data
         // EC: 18 per block * 4 blocks = 72 EC
@@ -245,7 +261,11 @@ describe("Error Correction tests", () => {
 
       it("should handle version 5-H with dual block groups", () => {
         const data = new Uint8Array(46).fill(77);
-        const result = implementErrorCorrection(data, ErrorCorrectionLevel.H, 5);
+        const result = implementErrorCorrection(
+          data,
+          ErrorCorrectionLevel.H,
+          5
+        );
 
         // Version 5-H: 2 blocks of 11 + 2 blocks of 12 = 46 data
         // EC: 22 per block * 4 blocks = 88 EC
@@ -257,7 +277,11 @@ describe("Error Correction tests", () => {
     describe("Version 7 error correction", () => {
       it("should implement error correction for version 7-L", () => {
         const data = new Uint8Array(156).fill(88);
-        const result = implementErrorCorrection(data, ErrorCorrectionLevel.L, 7);
+        const result = implementErrorCorrection(
+          data,
+          ErrorCorrectionLevel.L,
+          7
+        );
 
         // Version 7-L: 2 blocks, 78 data each = 156 data
         // EC: 20 per block * 2 = 40 EC
@@ -267,7 +291,11 @@ describe("Error Correction tests", () => {
 
       it("should implement error correction for version 7-Q with dual groups", () => {
         const data = new Uint8Array(88).fill(33);
-        const result = implementErrorCorrection(data, ErrorCorrectionLevel.Q, 7);
+        const result = implementErrorCorrection(
+          data,
+          ErrorCorrectionLevel.Q,
+          7
+        );
 
         // Version 7-Q: 2 blocks of 14 + 4 blocks of 15 = 88 data
         // EC: 18 per block * 6 blocks = 108 EC
@@ -279,7 +307,11 @@ describe("Error Correction tests", () => {
     describe("Version 10 error correction", () => {
       it("should implement error correction for version 10-M", () => {
         const data = new Uint8Array(216).fill(11);
-        const result = implementErrorCorrection(data, ErrorCorrectionLevel.M, 10);
+        const result = implementErrorCorrection(
+          data,
+          ErrorCorrectionLevel.M,
+          10
+        );
 
         // Version 10-M: 4 blocks of 43 + 1 block of 44 = 216 data
         // EC: 26 per block * 5 blocks = 130 EC
@@ -289,7 +321,11 @@ describe("Error Correction tests", () => {
 
       it("should implement error correction for version 10-H", () => {
         const data = new Uint8Array(122).fill(99);
-        const result = implementErrorCorrection(data, ErrorCorrectionLevel.H, 10);
+        const result = implementErrorCorrection(
+          data,
+          ErrorCorrectionLevel.H,
+          10
+        );
 
         // Version 10-H: 6 blocks of 15 + 2 blocks of 16 = 122 data
         // EC: 28 per block * 8 blocks = 224 EC
@@ -301,7 +337,11 @@ describe("Error Correction tests", () => {
     describe("Version 15 error correction", () => {
       it("should implement error correction for version 15-L", () => {
         const data = new Uint8Array(523).fill(5);
-        const result = implementErrorCorrection(data, ErrorCorrectionLevel.L, 15);
+        const result = implementErrorCorrection(
+          data,
+          ErrorCorrectionLevel.L,
+          15
+        );
 
         // Version 15-L: 5 blocks of 87 + 1 block of 88 = 523 data
         // EC: 22 per block * 6 blocks = 132 EC
@@ -313,7 +353,11 @@ describe("Error Correction tests", () => {
     describe("Version 20 error correction", () => {
       it("should implement error correction for version 20-Q", () => {
         const data = new Uint8Array(485).fill(8);
-        const result = implementErrorCorrection(data, ErrorCorrectionLevel.Q, 20);
+        const result = implementErrorCorrection(
+          data,
+          ErrorCorrectionLevel.Q,
+          20
+        );
 
         // Version 20-Q: 15 blocks of 24 + 5 blocks of 25 = 485 data
         // EC: 30 per block * 20 blocks = 600 EC
@@ -325,7 +369,11 @@ describe("Error Correction tests", () => {
     describe("Version 27 error correction", () => {
       it("should implement error correction for version 27-M", () => {
         const data = new Uint8Array(1128).fill(66);
-        const result = implementErrorCorrection(data, ErrorCorrectionLevel.M, 27);
+        const result = implementErrorCorrection(
+          data,
+          ErrorCorrectionLevel.M,
+          27
+        );
 
         // Version 27-M: 22 blocks of 45 + 3 blocks of 46 = 1128 data
         // EC: 28 per block * 25 blocks = 700 EC
@@ -337,7 +385,11 @@ describe("Error Correction tests", () => {
     describe("Version 30 error correction", () => {
       it("should implement error correction for version 30-H", () => {
         const data = new Uint8Array(745).fill(22);
-        const result = implementErrorCorrection(data, ErrorCorrectionLevel.H, 30);
+        const result = implementErrorCorrection(
+          data,
+          ErrorCorrectionLevel.H,
+          30
+        );
 
         // Version 30-H: 23 blocks of 15 + 25 blocks of 16 = 745 data
         // EC: 30 per block * 48 blocks = 1440 EC
@@ -349,7 +401,11 @@ describe("Error Correction tests", () => {
     describe("Version 40 error correction (maximum)", () => {
       it("should implement error correction for version 40-L", () => {
         const data = new Uint8Array(2956).fill(1);
-        const result = implementErrorCorrection(data, ErrorCorrectionLevel.L, 40);
+        const result = implementErrorCorrection(
+          data,
+          ErrorCorrectionLevel.L,
+          40
+        );
 
         // Version 40-L: 19 blocks of 118 + 6 blocks of 119 = 2956 data
         // EC: 30 per block * 25 blocks = 750 EC
@@ -359,7 +415,11 @@ describe("Error Correction tests", () => {
 
       it("should implement error correction for version 40-Q", () => {
         const data = new Uint8Array(1666).fill(127);
-        const result = implementErrorCorrection(data, ErrorCorrectionLevel.Q, 40);
+        const result = implementErrorCorrection(
+          data,
+          ErrorCorrectionLevel.Q,
+          40
+        );
 
         // Version 40-Q: 34 blocks of 24 + 34 blocks of 25 = 1666 data
         // EC: 30 per block * 68 blocks = 2040 EC
@@ -376,7 +436,11 @@ describe("Error Correction tests", () => {
           data[i] = i % 100;
         }
 
-        const result = implementErrorCorrection(data, ErrorCorrectionLevel.L, 10);
+        const result = implementErrorCorrection(
+          data,
+          ErrorCorrectionLevel.L,
+          10
+        );
 
         // Version 10-L: 2 blocks of 68 + 2 blocks of 69 = 274 data
         // First few bytes should be interleaved from blocks
