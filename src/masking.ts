@@ -156,7 +156,7 @@ function applyDataMask(
           break;
       }
       if (mask) {
-        // @ts-ignore
+        // @ts-expect-error - XOR operation on number
         maskedMatrix[r]![c] ^= 1;
       }
     }

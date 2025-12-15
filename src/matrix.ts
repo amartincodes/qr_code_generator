@@ -1,9 +1,4 @@
-import {
-  EncodingMode,
-  ErrorCorrectionLevel,
-  QRCodeSizeByVersion,
-  getQRCodeSize
-} from "./types";
+import { EncodingMode, ErrorCorrectionLevel, getQRCodeSize } from "./types";
 import type { QRCodeOptions } from "./types";
 import { implementErrorCorrection } from "./errorCorrection";
 import { ALIGNMENT_PATTERN_POSITIONS } from "./patterns";

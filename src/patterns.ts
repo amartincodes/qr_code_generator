@@ -96,7 +96,7 @@ function placeFinderPattern(matrix: number[][], row: number, col: number) {
         j === 6 ||
         (i >= 2 && i <= 4 && j >= 2 && j <= 4)
       ) {
-        // @ts-ignore
+        // @ts-expect-error - Array access is guaranteed to be valid
         matrix[row + i][col + j] = 1;
       }
     }

@@ -9,7 +9,6 @@ import { ErrorCorrectionLevel } from "../src/types";
 import { createIsFunctionModuleMatrix } from "../src/matrix";
 import { placeDataBits } from "../src/patterns";
 import * as fs from "fs";
-import * as path from "path";
 
 describe("QRCodeGenerator", () => {
   let qrCodeGenerator: QRCodeGenerator;

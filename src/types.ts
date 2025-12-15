@@ -39,7 +39,8 @@ export enum CharacterCountIndicator {
   NUMERIC = 10, // for version 1-9
   ALPHANUMERIC = 9, // for version 1-9
   BYTE = 8, // for version 1-9
-  KANJI = 8 // for version 1-9
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
+  KANJI = 8 // for version 1-9 (intentionally same as BYTE)
 }
 
 export enum ErrorCorrectionLevel {

@@ -14,6 +14,7 @@ function detectBestEncoding(data: string): EncodingMode {
     return EncodingMode.NUMERIC;
   } else if (/^[0-9A-Z $%*+\-./:]+$/.test(data)) {
     return EncodingMode.ALPHANUMERIC;
+    // eslint-disable-next-line no-control-regex
   } else if (/^[\x00-\xFF]+$/.test(data)) {
     // ISO-8859-1 range
     return EncodingMode.BYTE;
@@ -94,7 +95,7 @@ function encodeDataToBinary(data: string, encodingMode: EncodingMode): string {
         encodedData += num.toString(2).padStart(bitLength, "0");
       }
       break;
-    case EncodingMode.ALPHANUMERIC:
+    case EncodingMode.ALPHANUMERIC: {
       const alphanumericTable = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
       for (let i = 0; i < data.length; i += 2) {
         const firstChar = alphanumericTable.indexOf(data[i]!);
@@ -109,6 +110,7 @@ function encodeDataToBinary(data: string, encodingMode: EncodingMode): string {
         }
       }
       break;
+    }
     case EncodingMode.BYTE:
       for (let i = 0; i < data.length; i++) {
         const byte = data.charCodeAt(i);
