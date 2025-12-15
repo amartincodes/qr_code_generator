@@ -17,7 +17,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/amartincodes/qr_code_gen.git"
+    "url": "git+https://github.com/amartincodes/qr_code_gen.git"
   },
   "files": [
     "dist"
