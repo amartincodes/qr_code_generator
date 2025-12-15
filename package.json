@@ -31,6 +31,9 @@
   "bin": {
     "qr-code-gen": "dist/cli.js"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "test": "jest --testPathIgnorePatterns=performance.test.ts",
     "test:perf": "jest performance.test.ts",
