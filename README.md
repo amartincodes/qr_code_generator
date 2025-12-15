@@ -2,10 +2,13 @@
 
 A high-performance, spec-compliant QR Code generator for Node.js with both CLI and library interfaces. Supports all QR Code versions (1-40), encoding modes, and error correction levels.
 
-[![Run Tests](https://github.com/amartincodes/qr_code_generator/actions/workflows/test.yml/badge.svg)](https://github.com/amartincodes/qr_code_generator/actions/workflows/test.yml)
+[![CI](https://github.com/amartincodes/qr_code_generator/actions/workflows/ci.yaml/badge.svg)](https://github.com/amartincodes/qr_code_generator/actions/workflows/ci.yaml)
 [![Run Benchmarks](https://github.com/amartincodes/qr_code_generator/actions/workflows/benchmark.yaml/badge.svg)](https://github.com/amartincodes/qr_code_generator/actions/workflows/benchmark.yaml)
 [![npm version](https://badge.fury.io/js/@amartincodes%2Fqr-code-gen.svg)](https://www.npmjs.com/package/@amartincodes/qr-code-gen)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js CI](https://img.shields.io/badge/Node.js-18.x+-green.svg)](https://nodejs.org/)
+![CLI Tool](https://img.shields.io/badge/CLI-Tool-blue.svg)
+![Library](https://img.shields.io/badge/Library-TypeScript-blue.svg)
 
 ## Features
 
@@ -270,6 +273,7 @@ This package is configured for publishing to npm with full TypeScript support.
 ### Prerequisites
 
 1. Make sure you're logged into npm:
+
    ```bash
    npm login
    ```
@@ -284,6 +288,7 @@ This package is configured for publishing to npm with full TypeScript support.
 The package uses automated checks before publishing:
 
 1. **Update version** in `package.json` (follow [semantic versioning](https://semver.org/)):
+
    ```bash
    # For a patch release (bug fixes)
    npm version patch
@@ -296,6 +301,7 @@ The package uses automated checks before publishing:
    ```
 
 2. **Publish to npm**:
+
    ```bash
    npm publish --access public
    ```
@@ -309,6 +315,7 @@ The package uses automated checks before publishing:
 ### What Gets Published
 
 The published package includes:
+
 - `dist/` - Compiled JavaScript files
 - `dist/*.d.ts` - TypeScript type definitions
 - `README.md` - Package documentation
@@ -316,6 +323,7 @@ The published package includes:
 - `package.json` - Package metadata
 
 Files **excluded** from the package (via `.npmignore`):
+
 - Source TypeScript files (`src/`)
 - Tests (`tests/`)
 - Benchmarks (`benchmarks/`)
