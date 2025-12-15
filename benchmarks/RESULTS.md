@@ -4,6 +4,48 @@ This file tracks performance benchmark results over time to monitor performance 
 
 ## Latest Results
 
+### Benchmark Run - 12/15/2025, 10:02:26 PM
+
+**System Information:**
+- Node.js: v20.19.6
+- Platform: linux 6.11.0-1018-azure
+- Architecture: x64
+- CPU: 4x Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz
+- Memory: 15.62 GB
+
+**Results:**
+
+| Benchmark | Avg Time (ms) | Min (ms) | Max (ms) | Ops/sec | Iterations |
+|-----------|---------------|----------|----------|---------|------------|
+| Version 1 - 3 chars | 2.81 | 2.31 | 4.50 | 356.41 | 50 |
+| Version 5 - 10 chars | 6.85 | 6.17 | 9.98 | 146.03 | 50 |
+| Version 10 - 15 chars | 19.48 | 14.80 | 45.15 | 51.33 | 50 |
+| Version 20 - 37 chars | 44.16 | 41.27 | 64.95 | 22.65 | 50 |
+| Version 30 - 50 chars | 92.13 | 83.97 | 106.69 | 10.85 | 50 |
+| Version 40 - 100 chars | 171.39 | 143.62 | 600.81 | 5.83 | 50 |
+| NUMERIC encoding | 16.64 | 15.77 | 23.91 | 60.10 | 50 |
+| ALPHANUMERIC encoding | 16.70 | 15.79 | 20.79 | 59.88 | 50 |
+| BYTE encoding | 16.70 | 15.83 | 23.02 | 59.88 | 50 |
+| EC Level L | 17.47 | 16.20 | 23.53 | 57.24 | 50 |
+| EC Level M | 16.85 | 15.97 | 18.25 | 59.35 | 50 |
+| EC Level Q | 17.37 | 16.51 | 18.81 | 57.58 | 50 |
+| EC Level H | 16.93 | 16.11 | 22.19 | 59.07 | 50 |
+| Generate 10 QR codes (Version 4) | 58.92 | 56.84 | 61.79 | 16.97 | 5 |
+| Generate 50 QR codes (Version 4) | 315.22 | 301.93 | 338.32 | 3.17 | 5 |
+| Generate 100 QR codes (Version 4) | 656.41 | 629.83 | 673.49 | 1.52 | 5 |
+| 100 chars - Version 20 | 55.24 | 50.07 | 58.96 | 18.10 | 20 |
+| 500 chars - Version 30 | 108.00 | 97.48 | 122.65 | 9.26 | 20 |
+| 1000 chars - Version 40 | 194.98 | 174.34 | 291.51 | 5.13 | 20 |
+
+---
+
+
+## Historical Results
+
+Results are appended below with newest first.
+
+---
+
 ### Benchmark Run - 12/15/2025, 9:53:56 PM
 
 **System Information:**
@@ -39,12 +81,6 @@ This file tracks performance benchmark results over time to monitor performance 
 
 ---
 
-
-## Historical Results
-
-Results are appended below with newest first.
-
----
 
 ### Benchmark Run - 12/14/2025, 3:24:16 PM
 
