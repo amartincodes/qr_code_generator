@@ -256,7 +256,7 @@ function createFormatInformationEncoding(
     ]
   };
 
-  return formatInfoTable[errorCorrectionLevel]![maskPattern];
+  return formatInfoTable[errorCorrectionLevel]![maskPattern]!;
 }
 
 function placeFormatInformation(
@@ -429,7 +429,7 @@ function placeQuietZone(matrix: number[][], quietZoneSize: number): number[][] {
 
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
-      newMatrix[r + quietZoneSize]![c + quietZoneSize] = matrix[r]![c];
+      newMatrix[r + quietZoneSize]![c + quietZoneSize] = matrix[r]![c]!;
     }
   }
 
