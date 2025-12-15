@@ -4,6 +4,48 @@ This file tracks performance benchmark results over time to monitor performance 
 
 ## Latest Results
 
+### Benchmark Run - 12/15/2025, 11:19:52 PM
+
+**System Information:**
+- Node.js: v20.19.6
+- Platform: linux 6.11.0-1018-azure
+- Architecture: x64
+- CPU: 4x AMD EPYC 7763 64-Core Processor
+- Memory: 15.62 GB
+
+**Results:**
+
+| Benchmark | Avg Time (ms) | Min (ms) | Max (ms) | Ops/sec | Iterations |
+|-----------|---------------|----------|----------|---------|------------|
+| Version 1 - 3 chars | 1.02 | 0.53 | 4.16 | 979.21 | 50 |
+| Version 5 - 10 chars | 2.29 | 1.87 | 7.89 | 437.36 | 50 |
+| Version 10 - 15 chars | 3.76 | 3.17 | 7.07 | 266.22 | 50 |
+| Version 20 - 37 chars | 10.48 | 9.43 | 36.45 | 95.42 | 50 |
+| Version 30 - 50 chars | 20.49 | 20.26 | 20.79 | 48.81 | 50 |
+| Version 40 - 100 chars | 33.40 | 32.64 | 38.85 | 29.94 | 50 |
+| NUMERIC encoding | 3.41 | 3.19 | 5.27 | 293.51 | 50 |
+| ALPHANUMERIC encoding | 3.30 | 3.18 | 3.85 | 303.16 | 50 |
+| BYTE encoding | 3.32 | 3.21 | 3.92 | 301.50 | 50 |
+| EC Level L | 3.25 | 3.12 | 4.60 | 307.57 | 50 |
+| EC Level M | 3.32 | 3.21 | 3.87 | 301.59 | 50 |
+| EC Level Q | 3.39 | 3.29 | 3.51 | 295.09 | 50 |
+| EC Level H | 3.39 | 3.29 | 3.55 | 294.96 | 50 |
+| Generate 10 QR codes (Version 4) | 9.88 | 9.82 | 9.96 | 101.24 | 5 |
+| Generate 50 QR codes (Version 4) | 49.37 | 49.15 | 49.58 | 20.26 | 5 |
+| Generate 100 QR codes (Version 4) | 99.73 | 97.86 | 100.84 | 10.03 | 5 |
+| 100 chars - Version 20 | 9.70 | 9.32 | 11.17 | 103.12 | 20 |
+| 500 chars - Version 30 | 20.33 | 19.95 | 25.02 | 49.19 | 20 |
+| 1000 chars - Version 40 | 33.96 | 33.68 | 34.20 | 29.44 | 20 |
+
+---
+
+
+## Historical Results
+
+Results are appended below with newest first.
+
+---
+
 ### Benchmark Run - 12/15/2025, 10:02:26 PM
 
 **System Information:**
@@ -39,12 +81,6 @@ This file tracks performance benchmark results over time to monitor performance 
 
 ---
 
-
-## Historical Results
-
-Results are appended below with newest first.
-
----
 
 ### Benchmark Run - 12/15/2025, 9:53:56 PM
 
